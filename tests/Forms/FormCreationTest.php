@@ -687,8 +687,8 @@ class FormCreationTest extends TestCase
 
         $this->assertTrue($form->isValid());
         $this->assertFalse($form->isNotValid());
-        $this->assertEquals($request->get($firstname->getName()), $firstname->getValue());
-        $this->assertEquals($request->get($email->getName()), $email->getValue());
+        $this->assertEquals($request->input($firstname->getName()), $firstname->getValue());
+        $this->assertEquals($request->input($email->getName()), $email->getValue());
 
         $failingRequest = Request::create('/', 'POST', [
             'th_firstname' => 'Gilbert',
@@ -698,7 +698,7 @@ class FormCreationTest extends TestCase
         $form->handleRequest($failingRequest);
 
         $this->assertFalse($form->isValid());
-        $this->assertEquals($failingRequest->get($firstname->getName()), $firstname->getValue());
+        $this->assertEquals($failingRequest->input($firstname->getName()), $firstname->getValue());
         $this->assertEmpty($email->getValue());
     }
 
@@ -1201,12 +1201,12 @@ class FormCreationTest extends TestCase
         $form->handleRequest($request);
 
         $this->assertTrue($form->isValid());
-        $this->assertEquals($request->get($name->getName()), $dto->getFullname());
-        $this->assertEquals($request->get($email->getName()), $dto->getEmail());
-        $this->assertEquals($request->get($message->getName()), $dto->getMessage());
+        $this->assertEquals($request->input($name->getName()), $dto->getFullname());
+        $this->assertEquals($request->input($email->getName()), $dto->getEmail());
+        $this->assertEquals($request->input($message->getName()), $dto->getMessage());
         $this->assertTrue($dto->getSubscribe());
         $this->assertFalse($dto->getFollow());
-        $this->assertEquals($request->get($colors->getName()), $dto->getColors());
+        $this->assertEquals($request->input($colors->getName()), $dto->getColors());
     }
 
     public function test_form_use_data_object_default_values_and_set_request_values_on_success()
@@ -1231,9 +1231,9 @@ class FormCreationTest extends TestCase
 
         $form->handleRequest($request);
 
-        $this->assertEquals($request->get($title->getName()), $dto->title);
-        $this->assertEquals($request->get($content->getName()), $dto->content);
-        $this->assertEquals($request->get($author->getName()), $dto->getAuthor());
+        $this->assertEquals($request->input($title->getName()), $dto->title);
+        $this->assertEquals($request->input($content->getName()), $dto->content);
+        $this->assertEquals($request->input($author->getName()), $dto->getAuthor());
     }
 
     public function test_form_use_data_object_default_values_and_manage_request_values_on_failure()
@@ -1265,7 +1265,7 @@ class FormCreationTest extends TestCase
         $form->handleRequest($request);
 
         $this->assertEmpty($dto->title);
-        $this->assertEquals($request->get($content->getName()), $dto->content);
+        $this->assertEquals($request->input($content->getName()), $dto->content);
         $this->assertEmpty($dto->getAuthor());
     }
 

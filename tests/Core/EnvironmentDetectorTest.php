@@ -28,4 +28,26 @@ class EnvironmentDetectorTest extends TestCase
 
         $this->assertEquals('local', $result);
     }
+
+    public function test_console_environment_detection_with_space_separated_value()
+    {
+        $env = new EnvironmentDetector;
+
+        $result = $env->detect(function () {
+            return 'goo';
+        }, ['--env', 'staging']);
+
+        $this->assertEquals('staging', $result);
+    }
+
+    public function test_console_environment_detection_ignores_similar_options()
+    {
+        $env = new EnvironmentDetector;
+
+        $result = $env->detect(function () {
+            return 'goo';
+        }, ['--envelope=foo']);
+
+        $this->assertEquals('goo', $result);
+    }
 }

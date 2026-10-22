@@ -7,6 +7,20 @@ use Themosis\Core\AliasLoader;
 
 class AliasLoaderTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        $loader = AliasLoader::getInstance();
+
+        // Remove the loader from the autoload stack so fake aliases
+        // do not leak into other tests (the container probes class_exists()).
+        if ($loader->isRegistered()) {
+            spl_autoload_unregister([$loader, 'load']);
+            $loader->setRegistered(false);
+        }
+
+        parent::tearDown();
+    }
+
     public function test_loader_can_be_created_and_registered_once()
     {
         $loader = AliasLoader::getInstance(['foo' => 'bar']);

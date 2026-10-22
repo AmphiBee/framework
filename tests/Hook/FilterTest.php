@@ -4,6 +4,8 @@ use PHPUnit\Framework\TestCase;
 use Themosis\Core\Application;
 use Themosis\Hook\FilterBuilder;
 
+require_once __DIR__.'/AFilterClassForTest.php';
+
 class FilterTest extends TestCase
 {
     /**
@@ -20,7 +22,7 @@ class FilterTest extends TestCase
     {
         $filter = $this->getMockBuilder(FilterBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addFilter'])
+            ->onlyMethods(['addFilter'])
             ->getMock();
 
         $filter->expects($this->once())
@@ -45,7 +47,7 @@ class FilterTest extends TestCase
     {
         $filter = $this->getMockBuilder(FilterBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addFilter'])
+            ->onlyMethods(['addFilter'])
             ->getMock();
 
         $filter->expects($this->exactly(2))
@@ -88,7 +90,7 @@ class FilterTest extends TestCase
     {
         $filter = $this->getMockBuilder(FilterBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addFilter'])
+            ->onlyMethods(['addFilter'])
             ->getMock();
 
         $filter->expects($this->once())
@@ -107,7 +109,7 @@ class FilterTest extends TestCase
     {
         $filter = $this->getMockBuilder(FilterBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addFilter'])
+            ->onlyMethods(['addFilter'])
             ->getMock();
 
         $filter->expects($this->exactly(3))

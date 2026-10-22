@@ -804,7 +804,7 @@ class Page implements PageInterface
             return;
         }
 
-        $action = $request->get('action', '/');
+        $action = $request->input('action', '/');
 
         if (in_array($action, array_keys($this->routes['get']))) {
             $callback = $this->routes['get'][$action];
@@ -905,7 +905,7 @@ class Page implements PageInterface
             return $title;
         }
 
-        if (in_array($action = $request->get('action'), array_keys($this->titles))) {
+        if (in_array($action = $request->input('action'), array_keys($this->titles))) {
             return $this->titles[$action];
         }
 

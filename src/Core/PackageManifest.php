@@ -5,6 +5,7 @@ namespace Themosis\Core;
 use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Env;
 
 class PackageManifest
 {
@@ -38,7 +39,7 @@ class PackageManifest
         $this->files = $files;
         $this->basePath = $basePath;
         $this->manifestPath = $manifestPath;
-        $this->vendorPath = $basePath.'/vendor';
+        $this->vendorPath = Env::get('COMPOSER_VENDOR_DIR') ?: $basePath.'/vendor';
     }
 
     /**

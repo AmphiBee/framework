@@ -4,6 +4,8 @@ use PHPUnit\Framework\TestCase;
 use Themosis\Core\Application;
 use Themosis\Hook\ActionBuilder;
 
+require_once __DIR__.'/AnActionClassForTest.php';
+
 class ActionTest extends TestCase
 {
     /**
@@ -20,7 +22,7 @@ class ActionTest extends TestCase
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addAction'])
+            ->onlyMethods(['addAction'])
             ->getMock();
 
         $action->expects($this->once())
@@ -45,7 +47,7 @@ class ActionTest extends TestCase
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addAction'])
+            ->onlyMethods(['addAction'])
             ->getMock();
 
         $action->expects($this->exactly(2))
@@ -80,7 +82,7 @@ class ActionTest extends TestCase
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addAction'])
+            ->onlyMethods(['addAction'])
             ->getMock();
 
         $action->expects($this->once())->method('addAction');
@@ -98,7 +100,7 @@ class ActionTest extends TestCase
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addAction'])
+            ->onlyMethods(['addAction'])
             ->getMock();
 
         $action->expects($this->once())->method('addAction');
@@ -117,7 +119,7 @@ class ActionTest extends TestCase
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['doAction'])
+            ->onlyMethods(['doAction'])
             ->getMock();
 
         $action->expects($this->exactly(2))
@@ -133,7 +135,7 @@ class ActionTest extends TestCase
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['doActionRefArray'])
+            ->onlyMethods(['doActionRefArray'])
             ->getMock();
 
         $action->expects($this->exactly(2))->method('doActionRefArray');
@@ -148,7 +150,7 @@ class ActionTest extends TestCase
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addAction'])
+            ->onlyMethods(['addAction'])
             ->getMock();
 
         $action->expects($this->exactly(3))->method('addAction');

@@ -50,4 +50,14 @@ class ConvertEmptyStringsToNull extends TransformsRequest
     {
         return is_string($value) && $value === '' ? null : $value;
     }
+
+    /**
+     * Flush the middleware's global state.
+     *
+     * @return void
+     */
+    public static function flushState()
+    {
+        static::$skipCallbacks = [];
+    }
 }

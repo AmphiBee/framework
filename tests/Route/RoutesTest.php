@@ -6,6 +6,8 @@ use Illuminate\Events\Dispatcher;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Routing\CallableDispatcher;
+use Illuminate\Routing\Contracts\CallableDispatcher as CallableDispatcherContract;
 use Illuminate\Routing\Controller;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
@@ -699,6 +701,9 @@ class RoutesTest extends TestCase
         $router = new Router(new Dispatcher, $container);
         $container->singleton(Registrar::class, function () use ($router) {
             return $router;
+        });
+        $container->singleton(CallableDispatcherContract::class, function ($app) {
+            return new CallableDispatcher($app);
         });
 
         return $router;

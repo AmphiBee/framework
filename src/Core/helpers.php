@@ -1,10 +1,12 @@
 <?php
 
+use Illuminate\Broadcasting\FakePendingBroadcast;
 use Illuminate\Broadcasting\PendingBroadcast;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
 use Illuminate\Container\EntryNotFoundException;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Broadcasting\Factory as BroadcastFactory;
@@ -22,26 +24,32 @@ use Illuminate\Cookie\CookieJar;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Log\Context\Repository as ContextRepository;
 use Illuminate\Log\LogManager;
-use Illuminate\Queue\SerializableClosure;
+use Illuminate\Queue\CallQueuedClosure;
 use Illuminate\Routing\Redirector;
+use Illuminate\Routing\Router;
 use Illuminate\Session\SessionManager;
 use Illuminate\Session\Store;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Defer\DeferredCallback;
+use Illuminate\Support\Defer\DeferredCallbackCollection;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\HtmlString;
 use Illuminate\Validation\Validator;
 use Illuminate\View\Factory;
 use Illuminate\View\View;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Themosis\Core\Application;
+use Themosis\Core\Bus\PendingClosureDispatch;
 use Themosis\Core\Bus\PendingDispatch;
 use Themosis\Core\Mix;
+
+use function Illuminate\Support\enum_value;
 
 if (! function_exists('abort')) {
     /**
@@ -438,15 +446,13 @@ if (! function_exists('dispatch')) {
      * Dispatch a job to its appropriate handler.
      *
      * @param  mixed  $job
-     * @return PendingDispatch
+     * @return PendingDispatch|PendingClosureDispatch
      */
     function dispatch($job)
     {
-        if ($job instanceof Closure) {
-            $job = new CallQueuedClosure(new SerializableClosure($job));
-        }
-
-        return new PendingDispatch($job);
+        return $job instanceof Closure
+            ? new PendingClosureDispatch(CallQueuedClosure::create($job))
+            : new PendingDispatch($job);
     }
 }
 
@@ -708,7 +714,7 @@ if (! function_exists('now')) {
      */
     function now($tz = null)
     {
-        return Date::now($tz);
+        return Date::now(enum_value($tz));
     }
 }
 
@@ -793,15 +799,45 @@ if (! function_exists('report')) {
     /**
      * Report an exception.
      *
-     * @param  Exception  $exception
+     * @param  Throwable|string  $exception
      */
     function report($exception)
     {
-        if ($exception instanceof Throwable &&
-            ! $exception instanceof Exception) {
-            $exception = new FatalThrowableError($exception);
+        if (is_string($exception)) {
+            $exception = new Exception($exception);
         }
+
         app(ExceptionHandler::class)->report($exception);
+    }
+}
+
+if (! function_exists('report_if')) {
+    /**
+     * Report an exception if the given condition is true.
+     *
+     * @param  bool  $boolean
+     * @param  Throwable|string  $exception
+     */
+    function report_if($boolean, $exception)
+    {
+        if ($boolean) {
+            report($exception);
+        }
+    }
+}
+
+if (! function_exists('report_unless')) {
+    /**
+     * Report an exception unless the given condition is true.
+     *
+     * @param  bool  $boolean
+     * @param  Throwable|string  $exception
+     */
+    function report_unless($boolean, $exception)
+    {
+        if (! $boolean) {
+            report($exception);
+        }
     }
 }
 
@@ -834,7 +870,7 @@ if (! function_exists('rescue')) {
      * Catch a potential exception and return a default value.
      *
      * @param  mixed  $rescue
-     * @param  bool  $report
+     * @param  bool|callable  $report
      * @return mixed
      */
     function rescue(callable $callback, $rescue = null, $report = true)
@@ -842,7 +878,7 @@ if (! function_exists('rescue')) {
         try {
             return $callback();
         } catch (Throwable $e) {
-            if ($report) {
+            if (value($report, $e)) {
                 report($e);
             }
 
@@ -1017,7 +1053,7 @@ if (! function_exists('today')) {
      */
     function today($tz = null)
     {
-        return Date::today($tz);
+        return Date::today(enum_value($tz));
     }
 }
 
@@ -1125,5 +1161,147 @@ if (! function_exists('web_path')) {
     function web_path($path = '')
     {
         return app()->webPath($path);
+    }
+}
+
+if (! function_exists('lang_path')) {
+    /**
+     * Get the path to the language folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function lang_path($path = '')
+    {
+        return app()->langPath($path);
+    }
+}
+
+if (! function_exists('to_route')) {
+    /**
+     * Create a new redirect response to a named route.
+     *
+     * @param  string  $route
+     * @param  mixed  $parameters
+     * @param  int  $status
+     * @param  array  $headers
+     * @return RedirectResponse
+     */
+    function to_route($route, $parameters = [], $status = 302, $headers = [])
+    {
+        return redirect()->route($route, $parameters, $status, $headers);
+    }
+}
+
+if (! function_exists('to_action')) {
+    /**
+     * Create a new redirect response to a controller action.
+     *
+     * @param  string|array  $action
+     * @param  mixed  $parameters
+     * @param  int  $status
+     * @param  array  $headers
+     * @return RedirectResponse
+     */
+    function to_action($action, $parameters = [], $status = 302, $headers = [])
+    {
+        return redirect()->action($action, $parameters, $status, $headers);
+    }
+}
+
+if (! function_exists('context')) {
+    /**
+     * Get / set the specified context value.
+     *
+     * @param  array|string|null  $key
+     * @param  mixed  $default
+     * @return mixed
+     */
+    function context($key = null, $default = null)
+    {
+        $context = app(ContextRepository::class);
+
+        return match (true) {
+            is_null($key) => $context,
+            is_array($key) => $context->add($key),
+            default => $context->get($key, $default),
+        };
+    }
+}
+
+if (! function_exists('defer')) {
+    /**
+     * Defer execution of the given callback.
+     *
+     * @return DeferredCallback|DeferredCallbackCollection
+     */
+    function defer(?callable $callback = null, ?string $name = null, bool $always = false)
+    {
+        return \Illuminate\Support\defer($callback, $name, $always);
+    }
+}
+
+if (! function_exists('broadcast_if')) {
+    /**
+     * Begin broadcasting an event if the given condition is true.
+     *
+     * @param  bool  $boolean
+     * @param  mixed|null  $event
+     * @return PendingBroadcast
+     */
+    function broadcast_if($boolean, $event = null)
+    {
+        if ($boolean) {
+            return app(BroadcastFactory::class)->event(value($event));
+        }
+
+        return new FakePendingBroadcast;
+    }
+}
+
+if (! function_exists('broadcast_unless')) {
+    /**
+     * Begin broadcasting an event unless the given condition is true.
+     *
+     * @param  bool  $boolean
+     * @param  mixed|null  $event
+     * @return PendingBroadcast
+     */
+    function broadcast_unless($boolean, $event = null)
+    {
+        if (! $boolean) {
+            return app(BroadcastFactory::class)->event(value($event));
+        }
+
+        return new FakePendingBroadcast;
+    }
+}
+
+if (! function_exists('precognitive')) {
+    /**
+     * Handle a Precognition controller hook.
+     *
+     * @param  null|callable  $callable
+     * @return mixed
+     */
+    function precognitive($callable = null)
+    {
+        $callable ??= function () {
+            //
+        };
+
+        $payload = $callable(function ($default, $precognition = null) {
+            $response = request()->isPrecognitive()
+                ? ($precognition ?? $default)
+                : $default;
+
+            abort(Router::toResponse(request(), value($response)));
+        });
+
+        if (request()->isPrecognitive()) {
+            abort(204, headers: ['Precognition-Success' => 'true']);
+        }
+
+        return $payload;
     }
 }

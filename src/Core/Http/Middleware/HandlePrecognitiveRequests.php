@@ -3,12 +3,12 @@
 namespace Themosis\Core\Http\Middleware;
 
 use Illuminate\Container\Container;
-use Illuminate\Foundation\Routing\PrecognitionCallableDispatcher;
-use Illuminate\Foundation\Routing\PrecognitionControllerDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Contracts\CallableDispatcher as CallableDispatcherContract;
 use Illuminate\Routing\Contracts\ControllerDispatcher as ControllerDispatcherContract;
+use Themosis\Core\Routing\PrecognitionCallableDispatcher;
+use Themosis\Core\Routing\PrecognitionControllerDispatcher;
 
 class HandlePrecognitiveRequests
 {
@@ -42,12 +42,18 @@ class HandlePrecognitiveRequests
             return $this->appendVaryHeader($request, $next($request));
         }
 
+        $bindings = $this->container->getBindings();
+        $callableBinding = $bindings[CallableDispatcherContract::class] ?? null;
+        $controllerBinding = $bindings[ControllerDispatcherContract::class] ?? null;
+
         $this->prepareForPrecognition($request);
 
-        return tap($next($request), function ($response) use ($request) {
+        return tap($next($request), function ($response) use ($request, $callableBinding, $controllerBinding) {
             $response->headers->set('Precognition', 'true');
 
             $this->appendVaryHeader($request, $response);
+
+            $this->restoreDispatchers($callableBinding, $controllerBinding);
         });
     }
 
@@ -78,5 +84,23 @@ class HandlePrecognitiveRequests
             $response->headers->get('Vary'),
             'Precognition',
         ]))));
+    }
+
+    /**
+     * Restore the original route dispatcher bindings.
+     *
+     * @param  array|null  $callableBinding
+     * @param  array|null  $controllerBinding
+     * @return void
+     */
+    protected function restoreDispatchers($callableBinding, $controllerBinding)
+    {
+        if ($callableBinding) {
+            $this->container->bind(CallableDispatcherContract::class, $callableBinding['concrete'], $callableBinding['shared']);
+        }
+
+        if ($controllerBinding) {
+            $this->container->bind(ControllerDispatcherContract::class, $controllerBinding['concrete'], $controllerBinding['shared']);
+        }
     }
 }

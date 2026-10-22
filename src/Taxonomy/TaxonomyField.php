@@ -183,7 +183,7 @@ class TaxonomyField
         $data = [];
 
         foreach ($this->repository as $field) {
-            $data[$field->getName()] = $request->get($field->getName());
+            $data[$field->getName()] = $request->input($field->getName());
         }
 
         return $data;

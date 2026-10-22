@@ -2,8 +2,6 @@
 
 namespace {{ namespace }};
 
-use Themosis\Core\Testing\RefreshDatabase;
-use Themosis\Core\Testing\WithFaker;
 use Tests\TestCase;
 
 class {{ class }} extends TestCase

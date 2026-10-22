@@ -20,10 +20,12 @@ class RouteCollection extends IlluminateRouteCollection
             $domainAndUri .= serialize($route->getConditionParameters());
         }
 
-        foreach ($route->methods() as $method) {
+        $methods = $route->methods();
+
+        foreach ($methods as $method) {
             $this->routes[$method][$domainAndUri] = $route;
         }
 
-        $this->allRoutes[$method.$domainAndUri] = $route;
+        $this->allRoutes[implode('|', $methods).$domainAndUri] = $route;
     }
 }

@@ -253,7 +253,7 @@ class UserField implements UserFieldContract
         $data = [];
 
         foreach ($this->repository->all() as $field) {
-            $data[$field->getName()] = $request->get($field->getName());
+            $data[$field->getName()] = $request->input($field->getName());
         }
 
         return $data;

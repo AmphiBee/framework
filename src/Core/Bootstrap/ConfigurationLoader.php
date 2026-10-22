@@ -13,6 +13,7 @@ class ConfigurationLoader
     public function bootstrap(Application $app)
     {
         $items = [];
+        $loadedFromCache = false;
 
         /*
          * Verify if configuration is cached. If so, fetch it
@@ -23,12 +24,14 @@ class ConfigurationLoader
             $loadedFromCache = true;
         }
 
+        $app->instance('config_loaded_from_cache', $loadedFromCache);
+
         /*
          * Load configuration repository.
          */
         $app->instance('config', $config = new Repository($items));
 
-        if (! isset($loadedFromCache)) {
+        if (! $loadedFromCache) {
             $this->loadConfigurationFiles($app, $config);
         } else {
             $this->maybeForceWpConfigInclude();
@@ -41,6 +44,14 @@ class ConfigurationLoader
         $app->detectEnvironment(function () use ($config) {
             return $config->get('app.env', 'production');
         });
+
+        /*
+         * Let the container know the current environment
+         * (used by the #[Bind] container attributes).
+         */
+        if (method_exists($app, 'resolveEnvironmentUsing')) {
+            $app->resolveEnvironmentUsing($app->environment(...));
+        }
 
         /*
          * date_default_timezone_set is set by default to UTC by WordPress.

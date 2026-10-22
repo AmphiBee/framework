@@ -56,6 +56,10 @@ class ComposerScripts
 
         $app = new Application(getcwd());
 
+        if (is_file($configPath = $app->getCachedConfigPath())) {
+            @unlink($configPath);
+        }
+
         if (file_exists($servicesPath = $app->getCachedServicesPath())) {
             @unlink($servicesPath);
         }

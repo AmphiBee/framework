@@ -6,25 +6,26 @@ use Illuminate\Auth\Console\ClearResetsCommand;
 use Illuminate\Cache\Console\CacheTableCommand;
 use Illuminate\Cache\Console\ClearCommand as CacheClearCommand;
 use Illuminate\Cache\Console\ForgetCommand as CacheForgetCommand;
+use Illuminate\Cache\Console\PruneStaleTagsCommand;
+use Illuminate\Console\Scheduling\ScheduleClearCacheCommand;
 use Illuminate\Console\Scheduling\ScheduleFinishCommand;
+use Illuminate\Console\Scheduling\ScheduleInterruptCommand;
 use Illuminate\Console\Scheduling\ScheduleListCommand;
 use Illuminate\Console\Scheduling\ScheduleRunCommand;
 use Illuminate\Console\Scheduling\ScheduleTestCommand;
 use Illuminate\Console\Scheduling\ScheduleWorkCommand;
+use Illuminate\Console\Signals;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Database\Console\DbCommand;
 use Illuminate\Database\Console\DumpCommand;
 use Illuminate\Database\Console\Factories\FactoryMakeCommand;
-use Illuminate\Database\Console\Migrations\FreshCommand;
-use Illuminate\Database\Console\Migrations\InstallCommand;
-use Illuminate\Database\Console\Migrations\MigrateCommand;
-use Illuminate\Database\Console\Migrations\MigrateMakeCommand;
-use Illuminate\Database\Console\Migrations\RefreshCommand;
-use Illuminate\Database\Console\Migrations\ResetCommand;
-use Illuminate\Database\Console\Migrations\RollbackCommand;
-use Illuminate\Database\Console\Migrations\StatusCommand;
+use Illuminate\Database\Console\MonitorCommand as DatabaseMonitorCommand;
+use Illuminate\Database\Console\PruneCommand;
 use Illuminate\Database\Console\Seeds\SeedCommand;
 use Illuminate\Database\Console\Seeds\SeederMakeCommand;
+use Illuminate\Database\Console\ShowCommand;
+use Illuminate\Database\Console\ShowModelCommand;
+use Illuminate\Database\Console\TableCommand as DatabaseTableCommand;
 use Illuminate\Database\Console\WipeCommand;
 use Illuminate\Notifications\Console\NotificationTableCommand;
 use Illuminate\Queue\Console\BatchesTableCommand;
@@ -34,8 +35,12 @@ use Illuminate\Queue\Console\FlushFailedCommand as FlushFailedQueueCommand;
 use Illuminate\Queue\Console\ForgetFailedCommand as ForgetFailedQueueCommand;
 use Illuminate\Queue\Console\ListenCommand as ListenQueueCommand;
 use Illuminate\Queue\Console\ListFailedCommand as ListFailedQueueCommand;
+use Illuminate\Queue\Console\MonitorCommand as QueueMonitorCommand;
+use Illuminate\Queue\Console\PauseCommand as QueuePauseCommand;
 use Illuminate\Queue\Console\PruneBatchesCommand as PruneBatchesQueueCommand;
+use Illuminate\Queue\Console\PruneFailedJobsCommand as QueuePruneFailedJobsCommand;
 use Illuminate\Queue\Console\RestartCommand as RestartQueueCommand;
+use Illuminate\Queue\Console\ResumeCommand as QueueResumeCommand;
 use Illuminate\Queue\Console\RetryBatchCommand as QueueRetryBatchCommand;
 use Illuminate\Queue\Console\RetryCommand as RetryQueueCommand;
 use Illuminate\Queue\Console\TableCommand;
@@ -100,13 +105,6 @@ use Themosis\Core\Console\WidgetMakeCommand;
 class ArtisanServiceProvider extends ServiceProvider implements DeferrableProvider
 {
     /**
-     * Defer the loading of the provider.
-     *
-     * @var bool
-     */
-    protected $defer = true;
-
-    /**
      * Commands to register.
      *
      * @var array
@@ -114,11 +112,16 @@ class ArtisanServiceProvider extends ServiceProvider implements DeferrableProvid
     protected $commands = [
         'CacheClear' => 'command.cache.clear',
         'CacheForget' => 'command.cache.forget',
+        'CachePruneStaleTags' => PruneStaleTagsCommand::class,
         'ClearCompiled' => 'command.clear-compiled',
         'ClearResets' => 'command.auth.resets.clear',
         'ConfigCache' => 'command.config.cache',
         'ConfigClear' => 'command.config.clear',
         'Db' => DbCommand::class,
+        'DbMonitor' => DatabaseMonitorCommand::class,
+        'DbPrune' => PruneCommand::class,
+        'DbShow' => ShowCommand::class,
+        'DbTable' => DatabaseTableCommand::class,
         'DbWipe' => 'command.db.wipe',
         'Down' => 'command.down',
         'DropinClear' => 'command.dropin.clear',
@@ -136,8 +139,12 @@ class ArtisanServiceProvider extends ServiceProvider implements DeferrableProvid
         'QueueFlush' => 'command.queue.flush',
         'QueueForget' => 'command.queue.forget',
         'QueueListen' => 'command.queue.listen',
+        'QueueMonitor' => QueueMonitorCommand::class,
+        'QueuePause' => QueuePauseCommand::class,
         'QueuePruneBatches' => 'command.queue.prune-batches',
+        'QueuePruneFailedJobs' => QueuePruneFailedJobsCommand::class,
         'QueueRestart' => 'command.queue.restart',
+        'QueueResume' => QueueResumeCommand::class,
         'QueueRetry' => 'command.queue.retry',
         'QueueRetryBatch' => 'command.queue.retry-batch',
         'QueueWork' => 'command.queue.work',
@@ -145,13 +152,16 @@ class ArtisanServiceProvider extends ServiceProvider implements DeferrableProvid
         'RouteClear' => 'command.route.clear',
         'RouteList' => 'command.route.list',
         'SaltsGenerate' => 'command.salts.generate',
+        'ScheduleClearCache' => ScheduleClearCacheCommand::class,
         'ScheduleFinish' => ScheduleFinishCommand::class,
+        'ScheduleInterrupt' => ScheduleInterruptCommand::class,
         'ScheduleList' => ScheduleListCommand::class,
         'ScheduleRun' => ScheduleRunCommand::class,
         'ScheduleTest' => ScheduleTestCommand::class,
         'ScheduleWork' => ScheduleWorkCommand::class,
         'SchemaDump' => 'command.schema.dump',
         'Seed' => 'command.seed',
+        'ShowModel' => ShowModelCommand::class,
         'StorageLink' => 'command.storage.link',
         'Up' => 'command.up',
         'ViewCache' => 'command.view.cache',
@@ -215,15 +225,28 @@ class ArtisanServiceProvider extends ServiceProvider implements DeferrableProvid
             $this->commands,
             $this->devCommands,
         ));
+
+        Signals::resolveAvailabilityUsing(function () {
+            return $this->app->runningInConsole()
+                && ! $this->app->runningUnitTests()
+                && extension_loaded('pcntl');
+        });
     }
 
     /**
      * Register the given commands.
+     *
+     * Commands without a dedicated "register{Command}Command" method
+     * are registered as singletons resolved by the container.
      */
     protected function registerCommands(array $commands)
     {
         foreach ($commands as $command => $alias) {
-            $this->{"register{$command}Command"}($alias);
+            if (method_exists($this, $method = "register{$command}Command")) {
+                $this->{$method}($alias);
+            } else {
+                $this->app->singleton($alias);
+            }
         }
 
         $this->commands(array_values($commands));
@@ -273,7 +296,7 @@ class ArtisanServiceProvider extends ServiceProvider implements DeferrableProvid
     protected function registerCacheTableCommand($alias)
     {
         $this->app->singleton($alias, function ($app) {
-            return new CacheTableCommand($app['files'], $app['composer']);
+            return new CacheTableCommand($app['files']);
         });
     }
 
@@ -617,108 +640,6 @@ class ArtisanServiceProvider extends ServiceProvider implements DeferrableProvid
     }
 
     /**
-     * Register the migrate command.
-     *
-     * @param  string  $alias
-     */
-    protected function registerMigrateCommand($alias)
-    {
-        $this->app->singleton($alias, function ($app) {
-            return new MigrateCommand($app['migrator']);
-        });
-    }
-
-    /**
-     * Register the migrate:fresh command.
-     *
-     * @param  string  $alias
-     */
-    protected function registerMigrateFreshCommand($alias)
-    {
-        $this->app->singleton($alias, function () {
-            return new FreshCommand;
-        });
-    }
-
-    /**
-     * Register the migrate:install command.
-     *
-     * @param  string  $alias
-     */
-    protected function registerMigrateInstallCommand($alias)
-    {
-        $this->app->singleton($alias, function ($app) {
-            return new InstallCommand($app['migration.repository']);
-        });
-    }
-
-    /**
-     * Register the make:migration command.
-     *
-     * @param  string  $alias
-     */
-    protected function registerMigrateMakeCommand($alias)
-    {
-        $this->app->singleton($alias, function ($app) {
-            // Once we have the migration creator registered, we will create the command
-            // and inject the creator. The creator is responsible for the actual file
-            // creation of the migrations, and may be extended by these developers.
-            $creator = $app['migration.creator'];
-            $composer = $app['composer'];
-
-            return new MigrateMakeCommand($creator, $composer);
-        });
-    }
-
-    /**
-     * Register the migrate:refresh command.
-     *
-     * @param  string  $alias
-     */
-    protected function registerMigrateRefreshCommand($alias)
-    {
-        $this->app->singleton($alias, function () {
-            return new RefreshCommand;
-        });
-    }
-
-    /**
-     * Register the migrate:reset command.
-     *
-     * @param  string  $alias
-     */
-    protected function registerMigrateResetCommand($alias)
-    {
-        $this->app->singleton($alias, function ($app) {
-            return new ResetCommand($app['migrator']);
-        });
-    }
-
-    /**
-     * Register the migrate:rollback command.
-     *
-     * @param  string  $alias
-     */
-    protected function registerMigrateRollbackCommand($alias)
-    {
-        $this->app->singleton($alias, function ($app) {
-            return new RollbackCommand($app['migrator']);
-        });
-    }
-
-    /**
-     * Register the migrate:status command.
-     *
-     * @param  string  $alias
-     */
-    protected function registerMigrateStatusCommand($alias)
-    {
-        $this->app->singleton($alias, function ($app) {
-            return new StatusCommand($app['migrator']);
-        });
-    }
-
-    /**
      * Register the make:model command.
      *
      * @param  string  $alias
@@ -750,7 +671,7 @@ class ArtisanServiceProvider extends ServiceProvider implements DeferrableProvid
     protected function registerNotificationTableCommand($alias)
     {
         $this->app->singleton($alias, function ($app) {
-            return new NotificationTableCommand($app['files'], $app['composer']);
+            return new NotificationTableCommand($app['files']);
         });
     }
 
@@ -985,7 +906,7 @@ class ArtisanServiceProvider extends ServiceProvider implements DeferrableProvid
     protected function registerQueueFailedTableCommand($alias)
     {
         $this->app->singleton($alias, function ($app) {
-            return new FailedTableCommand($app['files'], $app['composer']);
+            return new FailedTableCommand($app['files']);
         });
     }
 
@@ -997,7 +918,7 @@ class ArtisanServiceProvider extends ServiceProvider implements DeferrableProvid
     protected function registerQueueTableCommand($alias)
     {
         $this->app->singleton($alias, function ($app) {
-            return new TableCommand($app['files'], $app['composer']);
+            return new TableCommand($app['files']);
         });
     }
 
@@ -1009,7 +930,7 @@ class ArtisanServiceProvider extends ServiceProvider implements DeferrableProvid
     protected function registerQueueBatchesTableCommand($alias)
     {
         $this->app->singleton($alias, function ($app) {
-            return new BatchesTableCommand($app['files'], $app['composer']);
+            return new BatchesTableCommand($app['files']);
         });
     }
 
@@ -1193,7 +1114,7 @@ class ArtisanServiceProvider extends ServiceProvider implements DeferrableProvid
     protected function registerSessionTableCommand($alias)
     {
         $this->app->singleton($alias, function ($app) {
-            return new SessionTableCommand($app['files'], $app['composer']);
+            return new SessionTableCommand($app['files']);
         });
     }
 

@@ -17,7 +17,7 @@ class Loop
     /**
      * Get the title of the current post.
      *
-     * @param  int|\WP_post  $post  The post ID or \WP_Post object
+     * @param  int|\WP_Post  $post  The post ID or \WP_Post object
      * @return string The title of the current post.
      */
     public function title($post = null)

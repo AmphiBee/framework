@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Themosis\Core\Precognition;
 
 trait ValidatesRequests
 {
@@ -27,6 +28,13 @@ trait ValidatesRequests
         }
 
         /** @var \Illuminate\Validation\Validator $validator */
+        if ($request->isPrecognitive()) {
+            $validator->after(Precognition::afterValidationHook($request))
+                ->setRules(
+                    $request->filterPrecognitiveRules($validator->getRulesWithoutPlaceholders()),
+                );
+        }
+
         $validator->validate();
 
         return $this->extractInputFromRules($request, $validator->getRules());
@@ -40,9 +48,17 @@ trait ValidatesRequests
      */
     public function validate(Request $request, array $rules, array $messages = [], array $attributes = [])
     {
-        $this->getValidationFactory()
-            ->make($request->all(), $rules, $messages, $attributes)
-            ->validate();
+        $validator = $this->getValidationFactory()
+            ->make($request->all(), $rules, $messages, $attributes);
+
+        if ($request->isPrecognitive()) {
+            $validator->after(Precognition::afterValidationHook($request))
+                ->setRules(
+                    $rules = $request->filterPrecognitiveRules($validator->getRulesWithoutPlaceholders()),
+                );
+        }
+
+        $validator->validate();
 
         return $this->extractInputFromRules($request, $rules);
     }

@@ -96,8 +96,7 @@ class PluginsRepository
     /**
      * Get the plugin. Find the root file and return its headers.
      *
-     *
-     * @return array
+     * @return array|null
      */
     public function getPlugin(string $directory)
     {
@@ -108,10 +107,10 @@ class PluginsRepository
 
             if (! empty($headers['name'])) {
                 return array_merge(['root' => $file->getFilename()], $headers);
-
-                break;
             }
         }
+
+        return null;
     }
 
     /**

@@ -3,16 +3,18 @@
 namespace Themosis\Core\Http;
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Illuminate\Contracts\Validation\ValidatesWhenResolved;
-use Illuminate\Contracts\Validation\Validator as ValidatorContract;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
-use Illuminate\Validation\Factory as ValidationFactory;
+use Illuminate\Support\ValidatedInput;
 use Illuminate\Validation\ValidatesWhenResolvedTrait;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Validation\Validator;
+use Themosis\Core\Precognition;
 
 class FormRequest extends Request implements ValidatesWhenResolved
 {
@@ -57,14 +59,50 @@ class FormRequest extends Request implements ValidatesWhenResolved
     protected $errorBag = 'default';
 
     /**
-     * @var ValidatorContract
+     * Indicates whether validation should stop after the first rule failure.
+     *
+     * @var bool
+     */
+    protected $stopOnFirstFailure = false;
+
+    /**
+     * @var Validator
      */
     protected $validator;
 
     /**
+     * Validate the class instance.
+     *
+     * Overrides ValidatesWhenResolvedTrait::validateResolved() which relies
+     * on Illuminate\Foundation\Precognition (not available in Themosis).
+     *
+     * @return void
+     */
+    public function validateResolved()
+    {
+        $this->prepareForValidation();
+
+        if (! $this->passesAuthorization()) {
+            $this->failedAuthorization();
+        }
+
+        $instance = $this->getValidatorInstance();
+
+        if ($this->isPrecognitive()) {
+            $instance->after(Precognition::afterValidationHook($this));
+        }
+
+        if ($instance->fails()) {
+            $this->failedValidation($instance);
+        }
+
+        $this->passedValidation();
+    }
+
+    /**
      * Get the validator instance for the request.
      *
-     * @return ValidatorContract
+     * @return Validator
      *
      * @throws BindingResolutionException
      */
@@ -77,13 +115,20 @@ class FormRequest extends Request implements ValidatesWhenResolved
         $factory = $this->container->make(ValidationFactory::class);
 
         if (method_exists($this, 'validator')) {
-            $validator = $this->container->call([$this, 'validator'], compact('factory'));
+            $validator = $this->container->call($this->validator(...), compact('factory'));
         } else {
             $validator = $this->createDefaultValidator($factory);
         }
 
         if (method_exists($this, 'withValidator')) {
             $this->withValidator($validator);
+        }
+
+        if (method_exists($this, 'after')) {
+            $validator->after($this->container->call(
+                $this->after(...),
+                ['validator' => $validator],
+            ));
         }
 
         $this->setValidator($validator);
@@ -94,17 +139,29 @@ class FormRequest extends Request implements ValidatesWhenResolved
     /**
      * Create the default validator instance.
      *
-     *
      * @return Validator
      */
     protected function createDefaultValidator(ValidationFactory $factory)
     {
-        return $factory->make(
+        $rules = $this->validationRules();
+
+        /** @var \Illuminate\Validation\Validator $validator */
+        $validator = $factory->make(
             $this->validationData(),
-            $this->container->call([$this, 'rules']),
+            $rules,
             $this->messages(),
             $this->attributes(),
         );
+
+        $validator->stopOnFirstFailure($this->stopOnFirstFailure);
+
+        if ($this->isPrecognitive()) {
+            $validator->setRules(
+                $this->filterPrecognitiveRules($validator->getRulesWithoutPlaceholders()),
+            );
+        }
+
+        return $validator;
     }
 
     /**
@@ -115,6 +172,16 @@ class FormRequest extends Request implements ValidatesWhenResolved
     protected function validationData()
     {
         return $this->all();
+    }
+
+    /**
+     * Get the validation rules for this form request.
+     *
+     * @return array
+     */
+    protected function validationRules()
+    {
+        return method_exists($this, 'rules') ? $this->container->call([$this, 'rules']) : [];
     }
 
     /**
@@ -138,13 +205,27 @@ class FormRequest extends Request implements ValidatesWhenResolved
     }
 
     /**
+     * Get a validated input container for the validated input.
+     *
+     * @return ValidatedInput|array
+     */
+    public function safe(?array $keys = null)
+    {
+        return is_array($keys)
+            ? $this->validator->safe()->only($keys)
+            : $this->validator->safe();
+    }
+
+    /**
      * Get the validated data from the request.
      *
-     * @return array
+     * @param  array|int|string|null  $key
+     * @param  mixed  $default
+     * @return mixed
      */
-    public function validated()
+    public function validated($key = null, $default = null)
     {
-        return $this->validator->validated();
+        return data_get($this->validator->validated(), $key, $default);
     }
 
     /**
@@ -155,7 +236,9 @@ class FormRequest extends Request implements ValidatesWhenResolved
      */
     protected function failedValidation(Validator $validator)
     {
-        throw (new ValidationException($validator))
+        $exception = $validator->getException();
+
+        throw (new $exception($validator))
             ->errorBag($this->errorBag)
             ->redirectTo($this->getRedirectUrl());
     }
@@ -184,11 +267,15 @@ class FormRequest extends Request implements ValidatesWhenResolved
      * Determine if the request passes the authorization check.
      *
      * @return bool
+     *
+     * @throws AuthorizationException
      */
     protected function passesAuthorization()
     {
         if (method_exists($this, 'authorize')) {
-            return $this->container->call([$this, 'authorize']);
+            $result = $this->container->call([$this, 'authorize']);
+
+            return $result instanceof Response ? $result->authorize() : $result;
         }
 
         return true;

@@ -54,6 +54,8 @@ class SaltsGenerateCommand extends Command
 
         if ($this->option('show')) {
             $this->showSaltKeys($saltKeys);
+
+            return;
         }
 
         if (! $this->setKeysInEnvironmentFile($saltKeys)) {
@@ -91,27 +93,38 @@ class SaltsGenerateCommand extends Command
      */
     protected function writeNewEnvironmentFileWith(string $key, string $salt)
     {
-        file_put_contents(
-            $this->laravel->environmentFilePath(),
-            preg_replace(
-                $this->keyReplacementPattern($key),
-                $key.'="'.$salt.'"',
-                file_get_contents($this->laravel->environmentFilePath()),
-            ),
+        $path = $this->laravel->environmentFilePath();
+        $contents = file_get_contents($path);
+
+        // Single quotes keep the salt literal for phpdotenv ("$" and "${" are not
+        // interpolated) and the salt characters never include a single quote.
+        $line = $key."='".$salt."'";
+
+        // A callback avoids "$1"-like sequences of the salt being read as back-references.
+        $replaced = preg_replace_callback(
+            $this->keyReplacementPattern($key),
+            fn () => $line,
+            $contents,
+            1,
+            $count,
         );
+
+        if ($count === 0) {
+            $replaced = rtrim($contents, PHP_EOL).PHP_EOL.$line.PHP_EOL;
+        }
+
+        file_put_contents($path, $replaced);
     }
 
     /**
-     * Get a regex pattern that will match env APP_KEY with any random key.
+     * Get a regex pattern that will match the whole env line of the given salt key,
+     * whatever its current value and quoting.
      *
      * @return string
      */
     protected function keyReplacementPattern(string $key)
     {
-        $alias = 'app.salts.'.strtolower($key);
-        $escaped = preg_quote($this->laravel['config'][$alias], '/');
-
-        return "/^{$key}=\"?{$escaped}\"?/m";
+        return '/^'.preg_quote($key, '/').'=.*$/m';
     }
 
     /**

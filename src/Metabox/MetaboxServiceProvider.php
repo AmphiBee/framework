@@ -10,13 +10,6 @@ use Themosis\Metabox\Resources\Transformers\MetaboxTransformer;
 
 class MetaboxServiceProvider extends ServiceProvider
 {
-    /**
-     * Defer metabox factory.
-     *
-     * @var bool
-     */
-    protected $defer = true;
-
     public function register()
     {
         $this->registerMetabox();

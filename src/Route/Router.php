@@ -6,6 +6,8 @@ use Illuminate\Container\Container;
 use Illuminate\Container\EntryNotFoundException;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Events\Routing;
+use Illuminate\Routing\Route as IlluminateRoute;
 use Illuminate\Routing\Router as IlluminateRouter;
 use Themosis\Route\Bindings\NullableWpPost;
 
@@ -30,7 +32,7 @@ class Router extends IlluminateRouter
      * @param  array|string  $methods
      * @param  string  $uri
      * @param  mixed  $action
-     * @return \Illuminate\Routing\Route
+     * @return IlluminateRoute
      */
     public function newRoute($methods, $uri, $action)
     {
@@ -51,7 +53,7 @@ class Router extends IlluminateRouter
      * Find the route matching a given request.
      *
      * @param  Request  $request
-     * @return \Illuminate\Routing\Route
+     * @return IlluminateRoute
      *
      * @throws EntryNotFoundException
      */
@@ -62,7 +64,10 @@ class Router extends IlluminateRouter
         // Verify that we're currently requesting a WordPress administration page.
         // If so, let's return a catch-all route.
         if (! is_null($app) && method_exists($app, 'isWordPressAdmin') && $app->isWordPressAdmin()) {
+            $this->events->dispatch(new Routing($request));
+
             $this->current = $route = (new AdminRoute($request, $this))->get();
+            $this->container->instance(IlluminateRoute::class, $route);
             $this->container->instance(Route::class, $route);
 
             return $route;

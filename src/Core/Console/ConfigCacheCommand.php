@@ -5,6 +5,8 @@ namespace Themosis\Core\Console;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Arr;
+use LogicException;
 use Throwable;
 
 class ConfigCacheCommand extends Command
@@ -56,7 +58,15 @@ class ConfigCacheCommand extends Command
         } catch (Throwable $exception) {
             $this->files->delete($configPath);
 
-            throw new \LogicException('Your configuration files are not serializable.', 0, $exception);
+            foreach (Arr::dot($config) as $key => $value) {
+                try {
+                    eval(var_export($value, true).';');
+                } catch (Throwable $e) {
+                    throw new LogicException("Your configuration files could not be serialized because the value at \"{$key}\" is non-serializable.", 0, $e);
+                }
+            }
+
+            throw new LogicException('Your configuration files are not serializable.', 0, $exception);
         }
 
         $this->info('Configuration cached successfully!');

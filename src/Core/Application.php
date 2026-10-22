@@ -4,6 +4,7 @@ namespace Themosis\Core;
 
 use Closure;
 use Composer\Autoload\ClassLoader;
+use Composer\InstalledVersions;
 use Illuminate\Auth\AuthManager;
 use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Auth\Passwords\PasswordBrokerManager;
@@ -41,6 +42,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Hashing\HashManager;
 use Illuminate\Http\Request;
+use Illuminate\Log\Context\ContextServiceProvider;
 use Illuminate\Log\LogManager;
 use Illuminate\Log\LogServiceProvider;
 use Illuminate\Mail\Mailer;
@@ -78,6 +80,7 @@ use Themosis\Html\HtmlBuilder;
 use Themosis\Route\Router;
 use Themosis\Route\RouteServiceProvider;
 use Themosis\Taxonomy\TaxonomyFieldFactory;
+use Twig\Environment;
 
 class Application extends Container implements ApplicationContract, CachesConfiguration, CachesRoutes, HttpKernelInterface
 {
@@ -87,11 +90,12 @@ class Application extends Container implements ApplicationContract, CachesConfig
     public const THEMOSIS_VERSION = '4.0.0';
 
     /**
-     * Laravel version.
+     * Minimum Laravel (illuminate/*) version supported.
+     * The installed version is returned by the version() method.
      *
      * @var string
      */
-    public const VERSION = '8.1.0';
+    public const VERSION = '12.68.0';
 
     /**
      * Application textdomain.
@@ -132,6 +136,13 @@ class Application extends Container implements ApplicationContract, CachesConfig
      * @var array
      */
     protected $serviceProviders = [];
+
+    /**
+     * The array of registered callbacks.
+     *
+     * @var callable[]
+     */
+    protected $registeredCallbacks = [];
 
     /**
      * The names of the loaded service providers.
@@ -200,6 +211,14 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function version()
     {
+        if (class_exists(InstalledVersions::class) && InstalledVersions::isInstalled('illuminate/support')) {
+            $version = ltrim((string) InstalledVersions::getPrettyVersion('illuminate/support'), 'v');
+
+            if (preg_match('/^\d+\.\d+\.\d+$/', $version)) {
+                return $version;
+            }
+        }
+
         return static::VERSION;
     }
 
@@ -225,6 +244,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
     {
         $this->register(new EventServiceProvider($this));
         $this->register(new LogServiceProvider($this));
+        $this->register(new ContextServiceProvider($this));
         $this->register(new RouteServiceProvider($this));
     }
 
@@ -389,7 +409,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
                 \Illuminate\Contracts\Translation\Translator::class,
             ],
             'twig' => [
-                \Twig_Environment::class,
+                Environment::class,
             ],
             'url' => [
                 UrlGenerator::class,
@@ -807,6 +827,19 @@ class Application extends Container implements ApplicationContract, CachesConfig
 
         (new ProviderRepository($this, new Filesystem, $this->getCachedServicesPath()))
             ->load($providers->collapse()->toArray());
+
+        $this->fireAppCallbacks($this->registeredCallbacks);
+    }
+
+    /**
+     * Register a new registered listener.
+     *
+     * @param  callable  $callback
+     * @return void
+     */
+    public function registered($callback)
+    {
+        $this->registeredCallbacks[] = $callback;
     }
 
     /**
@@ -854,6 +887,29 @@ class Application extends Container implements ApplicationContract, CachesConfig
     public function setDeferredServices(array $services)
     {
         $this->deferredServices = $services;
+    }
+
+    /**
+     * Determine if the given service is a deferred service.
+     *
+     * @param  string  $service
+     * @return bool
+     */
+    public function isDeferredService($service)
+    {
+        return isset($this->deferredServices[$service]);
+    }
+
+    /**
+     * Remove an array of services from the application's deferred services.
+     *
+     * @return void
+     */
+    public function removeDeferredServices(array $services)
+    {
+        foreach ($services as $service) {
+            unset($this->deferredServices[$service]);
+        }
     }
 
     /**
@@ -987,7 +1043,11 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function configurationIsCached()
     {
-        return file_exists($this->getCachedConfigPath());
+        if ($this->bound('config_loaded_from_cache')) {
+            return (bool) $this->make('config_loaded_from_cache');
+        }
+
+        return $this->instance('config_loaded_from_cache', is_file($this->getCachedConfigPath()));
     }
 
     /**
@@ -1136,8 +1196,10 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     protected function markAsRegistered($provider)
     {
-        $this->serviceProviders[] = $provider;
-        $this->loadedProviders[get_class($provider)] = true;
+        $class = get_class($provider);
+
+        $this->serviceProviders[$class] = $provider;
+        $this->loadedProviders[$class] = true;
     }
 
     /**
@@ -1183,13 +1245,40 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function make($abstract, array $parameters = [])
     {
-        $abstract = $this->getAlias($abstract);
-
-        if (isset($this->deferredServices[$abstract]) && ! isset($this->instances[$abstract])) {
-            $this->loadDeferredProvider($abstract);
-        }
+        $this->loadDeferredProviderIfNeeded($abstract = $this->getAlias($abstract));
 
         return parent::make($abstract, $parameters);
+    }
+
+    /**
+     * Resolve the given type from the container.
+     *
+     * Deferred providers are also loaded here so that dependencies
+     * resolved by the container (constructor injection...) are found.
+     *
+     * @param  string  $abstract
+     * @param  array  $parameters
+     * @param  bool  $raiseEvents
+     * @return mixed
+     */
+    protected function resolve($abstract, $parameters = [], $raiseEvents = true)
+    {
+        $this->loadDeferredProviderIfNeeded($abstract = $this->getAlias($abstract));
+
+        return parent::resolve($abstract, $parameters, $raiseEvents);
+    }
+
+    /**
+     * Load the deferred provider if the given type is a deferred service and the instance has not been loaded.
+     *
+     * @param  string  $abstract
+     * @return void
+     */
+    protected function loadDeferredProviderIfNeeded($abstract)
+    {
+        if ($this->isDeferredService($abstract) && ! isset($this->instances[$abstract])) {
+            $this->loadDeferredProvider($abstract);
+        }
     }
 
     /**
@@ -1238,7 +1327,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function bound($abstract)
     {
-        return isset($this->deferredServices[$abstract]) || parent::bound($abstract);
+        return $this->isDeferredService($abstract) || parent::bound($abstract);
     }
 
     /**
@@ -1535,6 +1624,13 @@ class Application extends Container implements ApplicationContract, CachesConfig
                 // HTTP OK - Send only the response headers.s
                 $response->sendHeaders();
             }
+
+            // WordPress renders the administration screen itself. Terminate
+            // the kernel once it is done so terminable middleware and
+            // deferred callbacks (defer() helper) are executed.
+            $this['action']->add('shutdown', function () use ($kernel, $request, $response) {
+                $kernel->terminate($request, $response);
+            });
         };
     }
 
@@ -1573,9 +1669,11 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function setLocale($locale)
     {
+        $previous = $this['config']->get('app.locale');
+
         $this['config']->set('app.locale', $locale);
         $this['translator']->setLocale($locale);
-        $this['events']->dispatch(new LocaleUpdated($locale));
+        $this['events']->dispatch(new LocaleUpdated($locale, $previous));
     }
 
     /**
@@ -1665,7 +1763,11 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function routesAreCached()
     {
-        return $this['files']->exists($this->getCachedRoutesPath());
+        if ($this->bound('routes.cached')) {
+            return (bool) $this->make('routes.cached');
+        }
+
+        return $this->instance('routes.cached', $this['files']->exists($this->getCachedRoutesPath()));
     }
 
     /**
@@ -1685,7 +1787,11 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function eventsAreCached()
     {
-        return $this['files']->exists($this->getCachedEventsPath());
+        if ($this->bound('events.cached')) {
+            return (bool) $this->make('events.cached');
+        }
+
+        return $this->instance('events.cached', $this['files']->exists($this->getCachedEventsPath()));
     }
 
     /**

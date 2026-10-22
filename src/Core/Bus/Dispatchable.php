@@ -2,8 +2,8 @@
 
 namespace Themosis\Core\Bus;
 
+use Closure;
 use Illuminate\Contracts\Bus\Dispatcher;
-use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Fluent;
 
 trait Dispatchable
@@ -11,76 +11,80 @@ trait Dispatchable
     /**
      * Dispatch the job with the given arguments.
      *
+     * @param  mixed  ...$arguments
      * @return PendingDispatch
      */
-    public static function dispatch()
+    public static function dispatch(...$arguments)
     {
-        return new PendingDispatch(new static(...func_get_args()));
+        return static::newPendingDispatch(new static(...$arguments));
     }
 
     /**
      * Dispatch the job with the given arguments if the given truth test passes.
      *
-     * @param  bool  $boolean
+     * @param  bool|Closure  $boolean
      * @param  mixed  ...$arguments
-     * @return Fluent|PendingDispatch
+     * @return PendingDispatch|Fluent
      */
     public static function dispatchIf($boolean, ...$arguments)
     {
-        return $boolean
-            ? new PendingDispatch(new static(...$arguments))
+        if ($boolean instanceof Closure) {
+            $dispatchable = new static(...$arguments);
+
+            return value($boolean, $dispatchable)
+                ? static::newPendingDispatch($dispatchable)
+                : new Fluent;
+        }
+
+        return value($boolean)
+            ? static::newPendingDispatch(new static(...$arguments))
             : new Fluent;
     }
 
     /**
      * Dispatch the job with the given arguments unless the given truth test passes.
      *
+     * @param  bool|Closure  $boolean
      * @param  mixed  ...$arguments
-     * @return Fluent|PendingDispatch
+     * @return PendingDispatch|Fluent
      */
     public static function dispatchUnless($boolean, ...$arguments)
     {
-        return ! $boolean
-            ? new PendingDispatch(new static(...$arguments))
+        if ($boolean instanceof Closure) {
+            $dispatchable = new static(...$arguments);
+
+            return ! value($boolean, $dispatchable)
+                ? static::newPendingDispatch($dispatchable)
+                : new Fluent;
+        }
+
+        return ! value($boolean)
+            ? static::newPendingDispatch(new static(...$arguments))
             : new Fluent;
     }
 
     /**
      * Dispatch a command to its appropriate handler in the current process.
      *
-     * Queuable jobs will be dispatched to the "sync" queue.
+     * Queueable jobs will be dispatched to the "sync" queue.
      *
+     * @param  mixed  ...$arguments
      * @return mixed
-     *
-     * @throws BindingResolutionException
      */
-    public static function dispatchSync()
+    public static function dispatchSync(...$arguments)
     {
-        return app(Dispatcher::class)->dispatchSync(new static(...func_get_args()));
+        return app(Dispatcher::class)->dispatchSync(new static(...$arguments));
     }
 
     /**
-     * Dispatch a command to its appropriate handler in the current process.
+     * Dispatch a command to its appropriate handler after the current process.
      *
+     * @param  mixed  ...$arguments
      * @return mixed
-     *
-     * @throws BindingResolutionException
      */
-    public static function dispatchNow()
+    public static function dispatchAfterResponse(...$arguments)
     {
-        return app(Dispatcher::class)->dispatchNow(new static(...func_get_args()));
-    }
-
-    /**
-     * Dispatch a command to its appropriate handle after the current process.
-     *
-     * @return mixed
-     *
-     * @throws BindingResolutionException
-     */
-    public static function dispatchAfterResponse()
-    {
-        return app(Dispatcher::class)->dispatchAfterResponse(new static(...func_get_args()));
+        return self::dispatch(...$arguments)->afterResponse();
     }
 
     /**
@@ -92,5 +96,16 @@ trait Dispatchable
     public static function withChain($chain)
     {
         return new PendingChain(static::class, $chain);
+    }
+
+    /**
+     * Create a new pending job dispatch instance.
+     *
+     * @param  mixed  $job
+     * @return PendingDispatch
+     */
+    protected static function newPendingDispatch($job)
+    {
+        return new PendingDispatch($job);
     }
 }

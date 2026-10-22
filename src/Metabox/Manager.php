@@ -48,7 +48,7 @@ class Manager implements MetaboxManagerInterface
     public function saveFields(MetaboxInterface $metabox, Request $request): MetaboxInterface
     {
         $post_id = $request->query('post_id');
-        $data = $this->getMetaboxData(collect($request->get('fields')));
+        $data = $this->getMetaboxData(collect($request->input('fields')));
         $fields = $metabox->repository()->all();
 
         /** @var $validator Validator */

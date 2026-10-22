@@ -2,11 +2,15 @@
 
 namespace Themosis\Tests\Core;
 
+use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Log\ContextLogProcessor;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Events\EventServiceProvider;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
+use Illuminate\Log\Context\Repository as ContextRepository;
 use Illuminate\Log\LogServiceProvider;
 use Illuminate\Support\ServiceProvider;
 use PHPUnit\Framework\TestCase;
@@ -163,7 +167,10 @@ class ApplicationTest extends TestCase
     public function test_service_providers_are_correctly_registered()
     {
         $app = new Application;
-        $provider = $this->getMockBuilder('BasicServiceProvider')->setMethods(['register', 'boot'])->getMock();
+        $provider = $this->getMockBuilder(ServiceProvider::class)
+            ->setConstructorArgs([$app])
+            ->onlyMethods(['register'])
+            ->getMock();
         $class = get_class($provider);
         $provider->expects($this->once())->method('register');
         $app->register($provider);
@@ -377,6 +384,88 @@ class ApplicationTest extends TestCase
         $this->expectException(HttpResponseException::class);
 
         abort(new CustomResponse);
+    }
+
+    public function test_version_returns_installed_illuminate_version()
+    {
+        $app = new Application;
+
+        $this->assertMatchesRegularExpression('/^\d+\.\d+\.\d+$/', $app->version());
+        $this->assertTrue(version_compare($app->version(), Application::VERSION, '>='));
+    }
+
+    public function test_context_services_are_registered_by_default()
+    {
+        $app = new Application;
+
+        // Required by the Laravel 11+ log manager, otherwise every log
+        // channel silently falls back to the emergency logger.
+        $this->assertInstanceOf(ContextLogProcessor::class, $app->make(ContextLogProcessor::class));
+        $this->assertInstanceOf(ContextRepository::class, $app->make(ContextRepository::class));
+    }
+
+    public function test_deferred_services_are_loaded_when_injected()
+    {
+        $app = new Application;
+        $app->setDeferredServices([
+            ApplicationDeferredDependency::class => ApplicationDeferredDependencyProvider::class,
+        ]);
+
+        $instance = $app->make(ApplicationDependsOnDeferred::class);
+
+        $this->assertSame('deferred', $instance->dependency->value);
+    }
+
+    public function test_registered_callbacks_are_fired()
+    {
+        $app = new Application;
+        $files = new Filesystem;
+        $bootstrapDirExists = $files->isDirectory($app->bootstrapPath());
+        $files->ensureDirectoryExists($app->bootstrapPath('cache'));
+        $app->instance('config', new Repository(['app' => ['providers' => []]]));
+        $manifest = $this->createMock(PackageManifest::class);
+        $manifest->method('providers')->willReturn([]);
+        $app->instance(PackageManifest::class, $manifest);
+
+        $fired = false;
+        $app->registered(function () use (&$fired) {
+            $fired = true;
+        });
+
+        $app->registerConfiguredProviders();
+
+        if (! $bootstrapDirExists) {
+            $files->deleteDirectory($app->bootstrapPath());
+        }
+
+        $this->assertTrue($fired);
+    }
+}
+
+class ApplicationDeferredDependency
+{
+    public function __construct(public string $value) {}
+}
+
+class ApplicationDependsOnDeferred
+{
+    public function __construct(public ApplicationDeferredDependency $dependency) {}
+}
+
+class ApplicationDeferredDependencyProvider extends ServiceProvider
+{
+    protected $defer = true;
+
+    public function register()
+    {
+        $this->app->singleton(ApplicationDeferredDependency::class, function () {
+            return new ApplicationDeferredDependency('deferred');
+        });
+    }
+
+    public function provides()
+    {
+        return [ApplicationDeferredDependency::class];
     }
 }
 

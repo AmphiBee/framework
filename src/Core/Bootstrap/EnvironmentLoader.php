@@ -98,6 +98,8 @@ class EnvironmentLoader
         $output->writeln('The environment file is invalid!');
         $output->writeln($e->getMessage());
 
+        http_response_code(500);
+
         exit(1);
     }
 }
