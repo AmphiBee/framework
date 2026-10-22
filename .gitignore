@@ -12,3 +12,6 @@ vendor/
 node_modules/
 composer.lock
 composer.phar
+
+# Written by ProviderRepositoryTest
+/tests/Core/services.php

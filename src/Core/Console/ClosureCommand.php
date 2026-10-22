@@ -3,6 +3,7 @@
 namespace Themosis\Core\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Console\ManuallyFailedException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -27,11 +28,10 @@ class ClosureCommand extends Command
      * Execute the console command.
      *
      *
-     * @return mixed
      *
      * @throws \ReflectionException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $inputs = array_merge($input->getArguments(), $input->getOptions());
 
@@ -43,10 +43,27 @@ class ClosureCommand extends Command
             }
         }
 
-        return $this->laravel->call(
-            $this->callback->bindTo($this, $this),
-            $parameters,
-        );
+        try {
+            return (int) $this->laravel->call(
+                $this->callback->bindTo($this, $this),
+                $parameters,
+            );
+        } catch (ManuallyFailedException $e) {
+            $this->components->error($e->getMessage());
+
+            return static::FAILURE;
+        }
+    }
+
+    /**
+     * Set the command description.
+     *
+     *
+     * @return $this
+     */
+    public function purpose($description)
+    {
+        return $this->describe($description);
     }
 
     /**

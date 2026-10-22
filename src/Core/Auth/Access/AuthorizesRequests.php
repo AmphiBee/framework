@@ -2,8 +2,14 @@
 
 namespace Themosis\Core\Auth\Access;
 
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Contracts\Auth\Access\Gate;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+
+use function Illuminate\Support\enum_value;
 
 trait AuthorizesRequests
 {
@@ -12,9 +18,9 @@ trait AuthorizesRequests
      *
      * @param  mixed  $ability
      * @param  mixed|array  $arguments
-     * @return \Illuminate\Auth\Access\Response
+     * @return Response
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function authorize($ability, $arguments = [])
     {
@@ -26,12 +32,12 @@ trait AuthorizesRequests
     /**
      * Authorize a given action for a user.
      *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable|mixed  $user
+     * @param  Authenticatable|mixed  $user
      * @param  mixed  $ability
      * @param  mixed|array  $arguments
-     * @return \Illuminate\Auth\Access\Response
+     * @return Response
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws AuthorizationException
      */
     public function authorizeForUser($user, $ability, $arguments = [])
     {
@@ -49,7 +55,9 @@ trait AuthorizesRequests
      */
     protected function parseAbilityAndArguments($ability, $arguments)
     {
-        if (is_string($ability) && strpos($ability, '\\') === false) {
+        $ability = enum_value($ability);
+
+        if (is_string($ability) && ! str_contains($ability, '\\')) {
             return [$ability, $arguments];
         }
 
@@ -74,12 +82,16 @@ trait AuthorizesRequests
     /**
      * Authorize a resource action based on the incoming request.
      *
-     * @param  string  $model
-     * @param  string|null  $parameter
-     * @param  \Illuminate\Http\Request|null  $request
+     * @param  string|array  $model
+     * @param  string|array|null  $parameter
+     * @param  Request|null  $request
      */
     public function authorizeResource($model, $parameter = null, array $options = [], $request = null)
     {
+        $model = is_array($model) ? implode(',', $model) : $model;
+
+        $parameter = is_array($parameter) ? implode(',', $parameter) : $parameter;
+
         $parameter = $parameter ?: Str::snake(class_basename($model));
 
         $middleware = [];

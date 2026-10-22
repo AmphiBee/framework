@@ -2,18 +2,12 @@
 
 namespace Themosis\Core\Providers;
 
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Database\MigrationServiceProvider;
 use Illuminate\Support\AggregateServiceProvider;
 
-class ConsoleCoreServiceProvider extends AggregateServiceProvider
+class ConsoleCoreServiceProvider extends AggregateServiceProvider implements DeferrableProvider
 {
-    /**
-     * Defer the loading of the provider.
-     *
-     * @var bool
-     */
-    protected $defer = true;
-
     /**
      * The provider class names.
      *

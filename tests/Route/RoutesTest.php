@@ -3,8 +3,11 @@
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Routing\Registrar;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Routing\CallableDispatcher;
+use Illuminate\Routing\Contracts\CallableDispatcher as CallableDispatcherContract;
 use Illuminate\Routing\Controller;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
@@ -14,7 +17,7 @@ use Themosis\Route\Router;
 
 class RoutesTest extends TestCase
 {
-    public function testWordPressHomeRoute()
+    public function test_word_press_home_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -37,7 +40,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testWordPressBlogRoute()
+    public function test_word_press_blog_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -51,7 +54,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testWordPress404Route()
+    public function test_word_press404_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -65,7 +68,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testWordPressPageRoute()
+    public function test_word_press_page_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -89,7 +92,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testArchiveWordPressRoute()
+    public function test_archive_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -103,7 +106,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testAttachmentWordPressRoute()
+    public function test_attachment_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -117,7 +120,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testAuthorWordPressRoute()
+    public function test_author_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -131,7 +134,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testCategoryWordPressRoute()
+    public function test_category_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -145,7 +148,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testDateWordPressRoute()
+    public function test_date_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -159,7 +162,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testDayWordPressRoute()
+    public function test_day_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -173,7 +176,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testFrontPageWordPressRoute()
+    public function test_front_page_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -187,7 +190,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testOtherFrontPageWordPressRoute()
+    public function test_other_front_page_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -201,7 +204,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testMonthWordPressRoute()
+    public function test_month_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -215,7 +218,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testPagedWordPressRoute()
+    public function test_paged_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -229,7 +232,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testTemplateWordPressRoute()
+    public function test_template_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -243,7 +246,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testPostTypeArchiveWordPressRoute()
+    public function test_post_type_archive_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -257,7 +260,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testPostTypeArchiveWordPressRouteWithSlugParameter()
+    public function test_post_type_archive_word_press_route_with_slug_parameter()
     {
         $router = $this->getWordPressRouter();
 
@@ -271,7 +274,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testPostTypeArchiveWordPressRouteWithSlugParameterAsArray()
+    public function test_post_type_archive_word_press_route_with_slug_parameter_as_array()
     {
         $router = $this->getWordPressRouter();
 
@@ -285,7 +288,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testSearchWordPressRoute()
+    public function test_search_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -299,7 +302,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testSingleWordPressRoute()
+    public function test_single_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -313,7 +316,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testSingularWordPressRoute()
+    public function test_singular_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -327,7 +330,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testSingularWordPressRouteWithSlug()
+    public function test_singular_word_press_route_with_slug()
     {
         $router = $this->getWordPressRouter();
 
@@ -341,7 +344,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testSingularWordPressRouteWithArrayOfSlugs()
+    public function test_singular_word_press_route_with_array_of_slugs()
     {
         $router = $this->getWordPressRouter();
 
@@ -355,7 +358,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testStickyWordPressRoute()
+    public function test_sticky_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -369,7 +372,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testTagWordPressRoute()
+    public function test_tag_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -383,7 +386,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testTaxWordPressRoute()
+    public function test_tax_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -397,7 +400,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testTimeWordPressRoute()
+    public function test_time_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -411,7 +414,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testYearWordPressRoute()
+    public function test_year_word_press_route()
     {
         $router = $this->getWordPressRouter();
 
@@ -425,7 +428,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testCustomCallbackRouteWithParameter()
+    public function test_custom_callback_route_with_parameter()
     {
         $router = $this->getWordPressRouter();
 
@@ -448,7 +451,7 @@ class RoutesTest extends TestCase
         );
     }
 
-    public function testRouteNotFoundIfNoCallback()
+    public function test_route_not_found_if_no_callback()
     {
         $router = $this->getWordPressRouter();
 
@@ -461,7 +464,7 @@ class RoutesTest extends TestCase
         $router->dispatch(Request::create('some-random-uri', 'GET'));
     }
 
-    public function testWordPressRouteParametersBindings()
+    public function test_word_press_route_parameters_bindings()
     {
         $router = $this->getWordPressRouter();
 
@@ -480,7 +483,7 @@ class RoutesTest extends TestCase
         ], $route->parameters());
     }
 
-    public function testWordPressRouteWithController()
+    public function test_word_press_route_with_controller()
     {
         $router = $this->getWordPressRouter();
 
@@ -501,7 +504,7 @@ class RoutesTest extends TestCase
     /**
      * @see laravel/framework/tests/Routing/RoutingRouteTest.php
      */
-    public function testBasicRouting()
+    public function test_basic_routing()
     {
         $router = $this->getWordPressRouter();
         $router->get('foo/bar', function () {
@@ -511,7 +514,7 @@ class RoutesTest extends TestCase
 
         $router = $this->getWordPressRouter();
         $router->get('foo/bar', function () {
-            throw new \Illuminate\Http\Exceptions\HttpResponseException(new Response('hello'));
+            throw new HttpResponseException(new Response('hello'));
         });
         $this->assertEquals('hello', $router->dispatch(Request::create('foo/bar', 'GET'))->getContent());
 
@@ -647,11 +650,11 @@ class RoutesTest extends TestCase
         $this->assertEquals('closure', $router->dispatch(Request::create('foo/bar', 'GET'))->getContent());
     }
 
-    public function testNotModifiedResponseIsProperlyReturned()
+    public function test_not_modified_response_is_properly_returned()
     {
         $router = $this->getWordPressRouter();
         $router->get('test', function () {
-            return (new SymfonyResponse('test', 304, ['foo' => 'bar']))->setLastModified(new DateTime());
+            return (new SymfonyResponse('test', 304, ['foo' => 'bar']))->setLastModified(new DateTime);
         });
         $response = $router->dispatch(Request::create('test', 'GET'));
         $this->assertSame(304, $response->getStatusCode());
@@ -694,10 +697,13 @@ class RoutesTest extends TestCase
 
     protected function getRouter()
     {
-        $container = new Container();
-        $router = new Router(new Dispatcher(), $container);
+        $container = new Container;
+        $router = new Router(new Dispatcher, $container);
         $container->singleton(Registrar::class, function () use ($router) {
             return $router;
+        });
+        $container->singleton(CallableDispatcherContract::class, function ($app) {
+            return new CallableDispatcher($app);
         });
 
         return $router;

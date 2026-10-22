@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
-    bootstrap="tests/bootstrap.php"
-    backupGlobals="false"
-    colors="true"
-    convertErrorsToExceptions="true"
-    convertNoticesToExceptions="true"
-    convertWarningsToExceptions="true"
-    processIsolation="false"
-    verbose="true">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         backupGlobals="false"
+         colors="true"
+         processIsolation="false"
+         cacheDirectory=".phpunit.cache">
     <testsuites>
         <testsuite name="Themosis framework">
             <directory suffix="Test.php">./tests</directory>
             <exclude>./tests/deprecated</exclude>
+            <!-- Fixture classes whose name ends with "Test". -->
+            <exclude>./tests/Hook/AFilterClassForTest.php</exclude>
+            <exclude>./tests/Hook/AnActionClassForTest.php</exclude>
         </testsuite>
     </testsuites>
+    <source>
+        <include>
+            <directory>./src</directory>
+        </include>
+    </source>
 </phpunit>

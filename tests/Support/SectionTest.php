@@ -7,12 +7,12 @@ use Themosis\Support\Section;
 
 class SectionTest extends TestCase
 {
-    public function testBasicSectionCreation()
+    public function test_basic_section_creation()
     {
         $section = new Section('default');
         $section->setItems($items = [
-            new \stdClass(),
-            new \stdClass(),
+            new \stdClass,
+            new \stdClass,
         ]);
         $section->setView('com.site.component.default');
         $section->setViewData([
@@ -37,7 +37,7 @@ class SectionTest extends TestCase
         }
     }
 
-    public function testBasicSectionWithTitle()
+    public function test_basic_section_with_title()
     {
         $section = new Section('custom', 'Custom Title');
 
@@ -48,7 +48,7 @@ class SectionTest extends TestCase
         $this->assertEquals('Another Title', $section->getTitle());
     }
 
-    public function testSectionCanHaveItemAtConstruction()
+    public function test_section_can_have_item_at_construction()
     {
         $section = new Section('special', 'Special', [
             'item 1',
@@ -63,7 +63,7 @@ class SectionTest extends TestCase
         $this->assertEquals('Special', $section->getTitle());
     }
 
-    public function testSectionHaveItems()
+    public function test_section_have_items()
     {
         $section = new Section('empty');
         $this->assertFalse($section->hasItems());

@@ -11,8 +11,16 @@ class LocaleUpdated
      */
     public $locale;
 
-    public function __construct($locale)
+    /**
+     * The previous application locale.
+     *
+     * @var string|null
+     */
+    public $previousLocale;
+
+    public function __construct($locale, $previousLocale = null)
     {
         $this->locale = $locale;
+        $this->previousLocale = $previousLocale;
     }
 }

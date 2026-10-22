@@ -14,12 +14,12 @@ class Factory
      */
     public function make($className)
     {
-        if (false !== strpos($className, '\\')) {
+        if (strpos($className, '\\') !== false) {
             $class = $className;
         } else {
             $class = 'Themosis\\Forms\\Resources\\Transformers\\'.$className;
         }
 
-        return new $class();
+        return new $class;
     }
 }

@@ -13,9 +13,9 @@ class Mix
      *
      * @param  string  $path
      * @param  string  $manifestDirectory
-     * @return \Illuminate\Support\HtmlString|string
+     * @return HtmlString|string
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function __invoke($path, $manifestDirectory = '')
     {
@@ -40,6 +40,12 @@ class Mix
 
         if (file_exists(public_path($manifestDirectory.'/hot'))) {
             $url = rtrim(file_get_contents(public_path($manifestDirectory.'/hot')));
+
+            $customUrl = app('config')->get('app.mix_hot_proxy_url');
+
+            if (! empty($customUrl)) {
+                return new HtmlString("{$customUrl}{$path}");
+            }
 
             if (Str::startsWith($url, ['http://', 'https://'])) {
                 return new HtmlString(Str::after($url, ':').$path);

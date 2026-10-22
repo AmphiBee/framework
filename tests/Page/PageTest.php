@@ -14,7 +14,12 @@ use Illuminate\View\Engines\PhpEngine;
 use Illuminate\View\FileViewFinder;
 use PHPUnit\Framework\TestCase;
 use Themosis\Core\Application;
+use Themosis\Hook\ActionBuilder;
+use Themosis\Hook\FilterBuilder;
+use Themosis\Page\Page;
 use Themosis\Page\PageFactory;
+use Themosis\Page\PageSettingsRepository;
+use Themosis\Page\PageView;
 use Themosis\Support\Section;
 
 class PageTest extends TestCase
@@ -23,25 +28,25 @@ class PageTest extends TestCase
 
     protected function getActionMock()
     {
-        return $this->getMockBuilder(\Themosis\Hook\ActionBuilder::class)
-            ->setMethods(['add'])
+        return $this->getMockBuilder(ActionBuilder::class)
+            ->onlyMethods(['add'])
             ->disableOriginalConstructor()
             ->getMock();
     }
 
     protected function getFilter()
     {
-        return $this->getMockBuilder(\Themosis\Hook\FilterBuilder::class)
-            ->setMethods(['add'])
+        return $this->getMockBuilder(FilterBuilder::class)
+            ->onlyMethods(['add'])
             ->disableOriginalConstructor()
             ->getMock();
     }
 
     protected function getApplication()
     {
-        $application = $this->getMockBuilder(\Themosis\Core\Application::class)
+        $application = $this->getMockBuilder(Application::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getLocale'])
+            ->onlyMethods(['getLocale'])
             ->getMock();
 
         $application->method('getLocale')->willReturn('en_US');
@@ -55,9 +60,9 @@ class PageTest extends TestCase
             return $this->viewFactory;
         }
 
-        $application = new Application();
+        $application = new Application;
 
-        $filesystem = new Filesystem();
+        $filesystem = new Filesystem;
 
         $bladeCompiler = new BladeCompiler(
             $filesystem,
@@ -65,10 +70,10 @@ class PageTest extends TestCase
         );
         $application->instance('blade', $bladeCompiler);
 
-        $resolver = new EngineResolver();
+        $resolver = new EngineResolver;
 
         $resolver->register('php', function () {
-            return new PhpEngine();
+            return new PhpEngine;
         });
 
         $resolver->register('blade', function () use ($bladeCompiler) {
@@ -94,7 +99,7 @@ class PageTest extends TestCase
 
     protected function getValidationFactory($locale)
     {
-        $translator = new Translator(new FileLoader(new Filesystem(), ''), $locale);
+        $translator = new Translator(new FileLoader(new Filesystem, ''), $locale);
 
         return new Factory($translator, $this->getApplication());
     }
@@ -109,14 +114,14 @@ class PageTest extends TestCase
         );
     }
 
-    public function testCreateACustomPage()
+    public function test_create_a_custom_page()
     {
         $action = $this->getActionMock();
         $factory = $this->getFactory($action);
 
         $page = $factory->make('a-page', 'Custom Page');
 
-        $this->assertInstanceOf(\Themosis\Page\Page::class, $page);
+        $this->assertInstanceOf(Page::class, $page);
         $this->assertEquals('a-page', $page->getSlug());
         $this->assertEquals('Custom Page', $page->getTitle());
         $this->assertEquals('Custom Page', $page->getMenu());
@@ -125,7 +130,7 @@ class PageTest extends TestCase
         $this->assertEquals(21, $page->getPosition());
         $this->assertNull($page->getParent());
         $this->assertFalse($page->isNetwork());
-        $this->assertInstanceOf(\Themosis\Page\PageView::class, $page->ui());
+        $this->assertInstanceOf(PageView::class, $page->ui());
         $this->assertEquals('themosis.pages', $page->ui()->getTheme());
         $this->assertEquals('default', $page->ui()->getLayout());
         $this->assertEquals('page', $page->ui()->getViewPath());
@@ -137,7 +142,7 @@ class PageTest extends TestCase
         $this->assertEquals($page, $factory->getContainer()->make('page.'.$page->getSlug()));
     }
 
-    public function testCreateANetworkPage()
+    public function test_create_a_network_page()
     {
         $action = $this->getActionMock();
         $factory = $this->getFactory($action);
@@ -152,7 +157,7 @@ class PageTest extends TestCase
         $page->set();
     }
 
-    public function testCreatePageWithCustomView()
+    public function test_create_page_with_custom_view()
     {
         $factory = $this->getFactory($this->getActionMock());
 
@@ -173,12 +178,12 @@ class PageTest extends TestCase
 
         $view = $page->ui()->getView();
         $this->assertEquals('Marcel', $view['name']);
-        $this->assertInstanceOf(\Themosis\Page\Page::class, $view['__page']);
+        $this->assertInstanceOf(Page::class, $view['__page']);
         $this->assertEquals('value', $view['some']);
         $this->assertEquals(42, $view['key']);
     }
 
-    public function testCreateASettingsPage()
+    public function test_create_a_settings_page()
     {
         $factory = $this->getFactory($this->getActionMock());
         $fieldFactory = new \Themosis\Field\Factory($this->getApplication(), $this->getViewFactory());
@@ -201,7 +206,7 @@ class PageTest extends TestCase
             ],
         ]);
 
-        $this->assertInstanceOf(\Themosis\Page\PageSettingsRepository::class, $page->repository());
+        $this->assertInstanceOf(PageSettingsRepository::class, $page->repository());
         $this->assertEquals(2, count($page->repository()->getSections()));
 
         $settings = $page->repository()->getSettings();
@@ -222,7 +227,7 @@ class PageTest extends TestCase
         $this->assertEquals('custom', $page->repository()->getSectionByName('custom')->getView());
     }
 
-    public function testCreateCustomPageUsingComposedViewPath()
+    public function test_create_custom_page_using_composed_view_path()
     {
         $factory = $this->getFactory($this->getActionMock());
 
@@ -233,7 +238,7 @@ class PageTest extends TestCase
         $this->assertEquals('themosis.pages.default.custom', $page->ui()->getView()->name());
     }
 
-    public function testCreateCustomPageUsingShortViewPath()
+    public function test_create_custom_page_using_short_view_path()
     {
         $factory = $this->getFactory($this->getActionMock());
 
@@ -244,7 +249,7 @@ class PageTest extends TestCase
         $this->assertEquals('pages.somepage', $page->ui()->getView()->name());
     }
 
-    public function testPageParents()
+    public function test_page_parents()
     {
         $factory = $this->getFactory($this->getActionMock());
 
@@ -260,7 +265,7 @@ class PageTest extends TestCase
         $this->assertTrue($page->hasParent());
     }
 
-    public function testPageCanShowSettingsInRest()
+    public function test_page_can_show_settings_in_rest()
     {
         $factory = $this->getFactory($this->getActionMock());
 

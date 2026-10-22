@@ -9,7 +9,7 @@ use Themosis\Core\PluginsRepository;
 
 class PluginsLoaderTest extends TestCase
 {
-    public function testLoadManifestWhenNoFileExists()
+    public function test_load_manifest_when_no_file_exists()
     {
         $app = $this->createMock('Themosis\Core\Application');
         $filesystem = $this->createMock('Illuminate\Filesystem\Filesystem');
@@ -20,7 +20,7 @@ class PluginsLoaderTest extends TestCase
         $this->assertNull($loader->loadManifest());
     }
 
-    public function testLoadManifestWhenFileExists()
+    public function test_load_manifest_when_file_exists()
     {
         $app = $this->createMock('Themosis\Core\Application');
         $filesystem = $this->createMock('Illuminate\Filesystem\Filesystem');
@@ -46,17 +46,17 @@ class PluginsLoaderTest extends TestCase
 
         $filesystem->expects($this->once())
             ->method('exists')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
         $filesystem->expects($this->once())
             ->method('getRequire')
-            ->will($this->returnValue($plugins));
+            ->willReturn($plugins);
 
         $manifest = $loader->loadManifest();
         $this->assertTrue(is_array($manifest));
         $this->assertEquals($plugins, $manifest);
     }
 
-    public function testLoaderCanGetPluginHeader()
+    public function test_loader_can_get_plugin_header()
     {
         $app = $this->createMock('Themosis\Core\Application');
         $filesystem = $this->createMock('Illuminate\Filesystem\Filesystem');
@@ -92,11 +92,11 @@ class PluginsLoaderTest extends TestCase
         ], $headers);
     }
 
-    public function testLoaderCanGetThePluginWithHeaders()
+    public function test_loader_can_get_the_plugin_with_headers()
     {
         $loader = new PluginsRepository(
-            new Application(),
-            new Filesystem(),
+            new Application,
+            new Filesystem,
             realpath(__DIR__.'/../htdocs/content/mu-plugins'),
             '',
         );

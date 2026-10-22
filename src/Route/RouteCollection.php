@@ -2,6 +2,7 @@
 
 namespace Themosis\Route;
 
+use Illuminate\Routing\Route;
 use Illuminate\Routing\RouteCollection as IlluminateRouteCollection;
 
 class RouteCollection extends IlluminateRouteCollection
@@ -9,7 +10,7 @@ class RouteCollection extends IlluminateRouteCollection
     /**
      * Add the given route to the arrays of routes.
      *
-     * @param  \Illuminate\Routing\Route  $route
+     * @param  Route  $route
      */
     protected function addToCollections($route)
     {
@@ -19,10 +20,12 @@ class RouteCollection extends IlluminateRouteCollection
             $domainAndUri .= serialize($route->getConditionParameters());
         }
 
-        foreach ($route->methods() as $method) {
+        $methods = $route->methods();
+
+        foreach ($methods as $method) {
             $this->routes[$method][$domainAndUri] = $route;
         }
 
-        $this->allRoutes[$method.$domainAndUri] = $route;
+        $this->allRoutes[implode('|', $methods).$domainAndUri] = $route;
     }
 }

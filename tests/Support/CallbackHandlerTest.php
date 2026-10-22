@@ -10,17 +10,17 @@ class CallbackHandlerTest extends TestCase
 {
     protected function getHandler()
     {
-        return (new Handler())->setContainer(new Application());
+        return (new Handler)->setContainer(new Application);
     }
 
-    public function testCallbackHandlerWithStringFunction()
+    public function test_callback_handler_with_string_function()
     {
         $handler = $this->getHandler();
 
         $this->assertTrue($handler->render('themosis_callback_helper'));
     }
 
-    public function testCallbackHandlerWithStringFunctionAndArguments()
+    public function test_callback_handler_with_string_function_and_arguments()
     {
         $handler = $this->getHandler();
 
@@ -29,7 +29,7 @@ class CallbackHandlerTest extends TestCase
         ]));
     }
 
-    public function testCallbackHandlerWithClosure()
+    public function test_callback_handler_with_closure()
     {
         $handler = $this->getHandler();
 
@@ -44,17 +44,17 @@ class CallbackHandlerTest extends TestCase
         ]));
     }
 
-    public function testCallbackHandlerWithClassArrayType()
+    public function test_callback_handler_with_class_array_type()
     {
         $handler = $this->getHandler();
 
-        $this->assertTrue($handler->render([new CallbackClass(), 'index']));
-        $this->assertEquals(42, $handler->render([new CallbackClass(), 'index'], [
+        $this->assertTrue($handler->render([new CallbackClass, 'index']));
+        $this->assertEquals(42, $handler->render([new CallbackClass, 'index'], [
             'count' => 42,
         ]));
     }
 
-    public function testCallbackHandlerWithClassSyntax()
+    public function test_callback_handler_with_class_syntax()
     {
         $handler = $this->getHandler();
 

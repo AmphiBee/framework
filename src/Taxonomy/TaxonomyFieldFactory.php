@@ -2,13 +2,14 @@
 
 namespace Themosis\Taxonomy;
 
+use Illuminate\View\Factory;
 use Themosis\Hook\IHook;
 use Themosis\Taxonomy\Contracts\TaxonomyInterface;
 
 class TaxonomyFieldFactory
 {
     /**
-     * @var \Illuminate\View\Factory
+     * @var Factory
      */
     private $factory;
 
@@ -23,7 +24,7 @@ class TaxonomyFieldFactory
     private $action;
 
     public function __construct(
-        \Illuminate\View\Factory $viewFactory,
+        Factory $viewFactory,
         \Illuminate\Contracts\Validation\Factory $validator,
         IHook $action,
     ) {
@@ -47,7 +48,7 @@ class TaxonomyFieldFactory
 
         return new TaxonomyField(
             $taxonomy,
-            new TaxonomyFieldRepository(),
+            new TaxonomyFieldRepository,
             $this->factory,
             $this->validator,
             $this->action,

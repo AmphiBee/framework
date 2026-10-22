@@ -4,6 +4,7 @@ namespace Themosis\Core;
 
 use Composer\Autoload\ClassLoader;
 use Illuminate\Config\Repository;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Themosis\Asset\Finder;
 use Themosis\Core\Support\IncludesFiles;
 use Themosis\Core\Support\WordPressFileHeaders;
@@ -13,8 +14,8 @@ use Themosis\Core\Theme\Templates;
 
 class ThemeManager
 {
-    use WordPressFileHeaders;
     use IncludesFiles;
+    use WordPressFileHeaders;
 
     /**
      * @var Application
@@ -84,13 +85,13 @@ class ThemeManager
         $this->app = $app;
         $this->dirPath = $dirPath;
         $this->loader = $loader;
-        $this->config = $this->app->has('config') ? $this->app['config'] : new Repository();
+        $this->config = $this->app->has('config') ? $this->app['config'] : new Repository;
     }
 
     /**
      * Load the theme. Setup theme requirements.
      *
-     * @param  string  $path Theme configuration folder path.
+     * @param  string  $path  Theme configuration folder path.
      * @return $this
      */
     public function load(string $path): ThemeManager
@@ -145,7 +146,7 @@ class ThemeManager
     /**
      * Return the theme root path.
      *
-     * @param  string  $path Path to append to the theme base path.
+     * @param  string  $path  Path to append to the theme base path.
      * @return string
      */
     public function getPath(string $path = '')
@@ -156,7 +157,7 @@ class ThemeManager
     /**
      * Return the theme root URL.
      *
-     * @param  string  $path Path to append to the theme base URL.
+     * @param  string  $path  Path to append to the theme base URL.
      * @return string
      */
     public function getUrl(string $path = '')
@@ -225,7 +226,7 @@ class ThemeManager
      *
      * @return $this
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function views(array $paths = [])
     {

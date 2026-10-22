@@ -6,7 +6,5 @@ use League\Fractal\TransformerAbstract;
 
 class CustomFieldTransformer extends TransformerAbstract
 {
-    public function transform()
-    {
-    }
+    public function transform() {}
 }

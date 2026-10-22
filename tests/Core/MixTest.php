@@ -11,7 +11,7 @@ class MixTest extends TestCase
 {
     protected $app;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->getApplication();
     }
@@ -25,13 +25,13 @@ class MixTest extends TestCase
         $app = new Application(dirname(__DIR__));
 
         $app->singleton('config', function () {
-            return new Repository();
+            return new Repository;
         });
 
         return $this->app = $app;
     }
 
-    public function testDefaultMixUsage()
+    public function test_default_mix_usage()
     {
         $mix = app(Mix::class);
 
@@ -41,7 +41,7 @@ class MixTest extends TestCase
         );
     }
 
-    public function testSpecifyingDirectory()
+    public function test_specifying_directory()
     {
         $mix = app(Mix::class);
 
@@ -51,7 +51,7 @@ class MixTest extends TestCase
         );
     }
 
-    public function testCallingFromPlugin()
+    public function test_calling_from_plugin()
     {
         $mix = app(Mix::class);
 
@@ -61,7 +61,7 @@ class MixTest extends TestCase
         );
     }
 
-    public function testCallingFromWebRoot()
+    public function test_calling_from_web_root()
     {
         $mix = app(Mix::class);
 

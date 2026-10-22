@@ -8,7 +8,7 @@ use Themosis\Forms\Fields\Contracts\CanHandlePageSettings;
 use Themosis\Forms\Fields\Contracts\CanHandleTerms;
 use Themosis\Forms\Fields\Contracts\CanHandleUsers;
 
-class TextType extends BaseType implements DataTransformerInterface, CanHandleMetabox, CanHandlePageSettings, CanHandleTerms, CanHandleUsers
+class TextType extends BaseType implements CanHandleMetabox, CanHandlePageSettings, CanHandleTerms, CanHandleUsers, DataTransformerInterface
 {
     /**
      * TextType field view.

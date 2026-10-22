@@ -21,9 +21,9 @@ class Ajax implements AjaxInterface
     /**
      * Listen to AJAX API calls.
      *
-     * @param  string  $action   The AJAX action name.
-     * @param  \Closure|string  $callback A callback function name, a closure or a string defining a class and its method.
-     * @param  string|bool  $logged   true, false or 'both' type of users.
+     * @param  string  $action  The AJAX action name.
+     * @param  \Closure|string  $callback  A callback function name, a closure or a string defining a class and its method.
+     * @param  string|bool  $logged  true, false or 'both' type of users.
      */
     public function listen($action, $callback, $logged = 'both'): AjaxInterface
     {

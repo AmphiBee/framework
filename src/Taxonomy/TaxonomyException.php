@@ -4,6 +4,4 @@ namespace Themosis\Taxonomy;
 
 use Exception;
 
-class TaxonomyException extends Exception
-{
-}
+class TaxonomyException extends Exception {}

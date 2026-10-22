@@ -4,6 +4,4 @@ namespace Themosis\Asset;
 
 use Exception;
 
-class AssetException extends Exception
-{
-}
+class AssetException extends Exception {}

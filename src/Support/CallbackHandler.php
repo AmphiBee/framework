@@ -2,6 +2,7 @@
 
 namespace Themosis\Support;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\Str;
 
@@ -45,7 +46,7 @@ trait CallbackHandler
         if ($callback instanceof \Closure || is_array($callback)) {
             $response = $handleResponse($callback, $args, $asArray);
         } elseif (is_string($callback)) {
-            if (false !== strpos($callback, '@') || class_exists($callback)) {
+            if (strpos($callback, '@') !== false || class_exists($callback)) {
                 // We use a "ClassName@method" syntax.
                 // Let's get a class instance and call its method.
                 $callbackArray = $this->handleClassCallback($callback);
@@ -63,7 +64,7 @@ trait CallbackHandler
      * Handle a class callback using "ClassName@method" syntax
      *
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     protected function handleClassCallback(string $callback): array
     {

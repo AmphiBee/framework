@@ -2,14 +2,16 @@
 
 namespace Themosis\Core\Events;
 
+use Illuminate\Broadcasting\PendingBroadcast;
+
 trait Dispatchable
 {
     /**
      * Dispatch the event with the given arguments.
      */
-    public static function dispatch()
+    public static function dispatch(...$arguments)
     {
-        return event(new static(...func_get_args()));
+        return event(new static(...$arguments));
     }
 
     /**
@@ -43,10 +45,10 @@ trait Dispatchable
     /**
      * Broadcast the event with the given arguments.
      *
-     * @return \Illuminate\Broadcasting\PendingBroadcast
+     * @return PendingBroadcast
      */
-    public static function broadcast()
+    public static function broadcast(...$arguments)
     {
-        return broadcast(new static(...func_get_args()));
+        return broadcast(new static(...$arguments));
     }
 }

@@ -69,7 +69,7 @@ class WordPressBodyClass
 
             if (! empty($tokens)) {
                 return array_filter(array_merge($tokens, $classes), function ($class) {
-                    return 'error404' !== $class;
+                    return $class !== 'error404';
                 });
             }
 

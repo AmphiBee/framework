@@ -490,7 +490,7 @@ class Page implements PageInterface
         // Set a default page view for handling
         // the settings. A user can still overwrite
         // the view.
-        if ('page' === $this->ui()->getViewPath()) {
+        if ($this->ui()->getViewPath() === 'page') {
             $this->ui()->setView('options');
         }
 
@@ -804,7 +804,7 @@ class Page implements PageInterface
             return;
         }
 
-        $action = $request->get('action', '/');
+        $action = $request->input('action', '/');
 
         if (in_array($action, array_keys($this->routes['get']))) {
             $callback = $this->routes['get'][$action];
@@ -886,7 +886,7 @@ class Page implements PageInterface
      */
     protected function parseAction(string $action, string $method): string
     {
-        if ('post' === $method) {
+        if ($method === 'post') {
             return $this->getSlug().'_'.$action;
         }
 
@@ -905,7 +905,7 @@ class Page implements PageInterface
             return $title;
         }
 
-        if (in_array($action = $request->get('action'), array_keys($this->titles))) {
+        if (in_array($action = $request->input('action'), array_keys($this->titles))) {
             return $this->titles[$action];
         }
 

@@ -2,11 +2,7 @@
 
 class AFilterClassForTest
 {
-    public function custom_filter()
-    {
-    }
+    public function custom_filter() {}
 
-    public function awesomeFilter()
-    {
-    }
+    public function awesomeFilter() {}
 }

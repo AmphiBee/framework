@@ -3,6 +3,7 @@
 namespace Themosis\Core\Auth\Access;
 
 use Illuminate\Contracts\Auth\Access\Gate;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 trait Authorizable
 {
@@ -13,7 +14,7 @@ trait Authorizable
      * @param  array|mixed  $arguments
      * @return bool
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function can($abilities, $arguments = [])
     {
@@ -27,7 +28,7 @@ trait Authorizable
      * @param  array|mixed  $arguments
      * @return bool
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function canAny($abilities, $arguments = [])
     {

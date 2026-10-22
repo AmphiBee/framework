@@ -49,13 +49,13 @@ class Templates
                 // 2.2 - $properties is an array.
                 if (is_array($properties) && ! empty($properties)) {
                     // 2.2.1 - $properties has only one value, meaning it's a display name
-                    //and only available to page.
-                    if (1 === count($properties) && is_string($properties[0])) {
+                    // and only available to page.
+                    if (count($properties) === 1 && is_string($properties[0])) {
                         $templates['page'][$slug] = $properties[0];
                     }
 
                     // 2.2.2 - $properties has 2 values
-                    if (2 === count($properties)) {
+                    if (count($properties) === 2) {
                         // 2.2.2.1 - Loop through the second one (cast it as array in case of).
                         $post_types = (array) $properties[1];
 

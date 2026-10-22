@@ -8,24 +8,46 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Traits\ForwardsCalls;
 use Themosis\Route\Router;
 
+/**
+ * @mixin Router
+ */
 class RouteServiceProvider extends ServiceProvider
 {
     use ForwardsCalls;
 
     /**
-     * Controller namespace used by loaded routes.
+     * The controller namespace for the application.
      *
      * @var string|null
      */
     protected $namespace;
 
     /**
-     * The callback that should be used to load application's routes.
+     * The callback that should be used to load the application's routes.
      *
-     * @var \Closure|null
+     * @var Closure|null
      */
     protected $loadRoutesUsing;
 
+    /**
+     * The global callback that should be used to load the application's routes.
+     *
+     * @var Closure|null
+     */
+    protected static $alwaysLoadRoutesUsing;
+
+    /**
+     * The callback that should be used to load the application's cached routes.
+     *
+     * @var Closure|null
+     */
+    protected static $alwaysLoadCachedRoutesUsing;
+
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
     public function register()
     {
         $this->booted(function () {
@@ -45,7 +67,51 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        //
+    }
+
+    /**
+     * Register the callback that will be used to load the application's routes.
+     *
+     * @return $this
+     */
+    protected function routes(Closure $routesCallback)
+    {
+        $this->loadRoutesUsing = $routesCallback;
+
+        return $this;
+    }
+
+    /**
+     * Register the callback that will be used to load the application's routes.
+     *
+     * @return void
+     */
+    public static function loadRoutesUsing(?Closure $routesCallback)
+    {
+        self::$alwaysLoadRoutesUsing = $routesCallback;
+    }
+
+    /**
+     * Register the callback that will be used to load the application's cached routes.
+     *
+     * @return void
+     */
+    public static function loadCachedRoutesUsing(?Closure $routesCallback)
+    {
+        self::$alwaysLoadCachedRoutesUsing = $routesCallback;
+    }
+
+    /**
      * Set the root controller namespace for the application.
+     *
+     * @return void
      */
     protected function setRootControllerNamespace()
     {
@@ -66,9 +132,17 @@ class RouteServiceProvider extends ServiceProvider
 
     /**
      * Load the cached routes for the application.
+     *
+     * @return void
      */
     protected function loadCachedRoutes()
     {
+        if (! is_null(self::$alwaysLoadCachedRoutesUsing)) {
+            $this->app->call(self::$alwaysLoadCachedRoutesUsing);
+
+            return;
+        }
+
         $this->app->booted(function () {
             require $this->app->getCachedRoutesPath();
         });
@@ -76,9 +150,15 @@ class RouteServiceProvider extends ServiceProvider
 
     /**
      * Load the application routes.
+     *
+     * @return void
      */
     protected function loadRoutes()
     {
+        if (! is_null(self::$alwaysLoadRoutesUsing)) {
+            $this->app->call(self::$alwaysLoadRoutesUsing);
+        }
+
         if (! is_null($this->loadRoutesUsing)) {
             $this->app->call($this->loadRoutesUsing);
         } elseif (method_exists($this, 'map')) {
@@ -87,41 +167,16 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap the service.
-     */
-    public function boot()
-    {
-        //
-    }
-
-    /**
      * Pass dynamic methods onto the router instance.
      *
      * @param  string  $method
      * @param  array  $parameters
      * @return mixed
-     *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function __call($method, $parameters)
     {
         return $this->forwardCallTo(
-            $this->app->make(Router::class),
-            $method,
-            $parameters,
+            $this->app->make(Router::class), $method, $parameters
         );
-    }
-
-    /**
-     * Register the callback that will be used to load the application's routes.
-     *
-     *
-     * @return $this
-     */
-    protected function routes(Closure $routesCallback)
-    {
-        $this->loadRoutesUsing = $routesCallback;
-
-        return $this;
     }
 }

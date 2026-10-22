@@ -53,9 +53,9 @@ class FormFactory implements FormFactoryInterface
     /**
      * Create a FormBuilderInterface instance.
      *
-     * @param  mixed  $data    Data object (DTO).
+     * @param  mixed  $data  Data object (DTO).
      * @param  array  $options
-     * @param  string  $builder A FieldBuilderInterface class.
+     * @param  string  $builder  A FieldBuilderInterface class.
      */
     public function make($data = null, $options = [], $builder = FormBuilder::class): FormBuilderInterface
     {
@@ -63,7 +63,7 @@ class FormFactory implements FormFactoryInterface
 
         $form = new Form(
             $data,
-            new FieldsRepository(),
+            new FieldsRepository,
             $this->validation,
             $this->viewer,
             $dataMapperManager,

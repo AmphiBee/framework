@@ -3,7 +3,11 @@
 namespace Themosis\Route;
 
 use Illuminate\Container\Container;
+use Illuminate\Container\EntryNotFoundException;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Events\Routing;
+use Illuminate\Routing\Route as IlluminateRoute;
 use Illuminate\Routing\Router as IlluminateRouter;
 use Themosis\Route\Bindings\NullableWpPost;
 
@@ -16,10 +20,10 @@ class Router extends IlluminateRouter
      */
     protected $conditions = [];
 
-    public function __construct(Dispatcher $events, Container $container = null)
+    public function __construct(Dispatcher $events, ?Container $container = null)
     {
         parent::__construct($events, $container);
-        $this->routes = new RouteCollection();
+        $this->routes = new RouteCollection;
     }
 
     /**
@@ -28,7 +32,7 @@ class Router extends IlluminateRouter
      * @param  array|string  $methods
      * @param  string  $uri
      * @param  mixed  $action
-     * @return \Illuminate\Routing\Route
+     * @return IlluminateRoute
      */
     public function newRoute($methods, $uri, $action)
     {
@@ -48,10 +52,10 @@ class Router extends IlluminateRouter
     /**
      * Find the route matching a given request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Routing\Route
+     * @param  Request  $request
+     * @return IlluminateRoute
      *
-     * @throws \Illuminate\Container\EntryNotFoundException
+     * @throws EntryNotFoundException
      */
     protected function findRoute($request)
     {
@@ -60,7 +64,10 @@ class Router extends IlluminateRouter
         // Verify that we're currently requesting a WordPress administration page.
         // If so, let's return a catch-all route.
         if (! is_null($app) && method_exists($app, 'isWordPressAdmin') && $app->isWordPressAdmin()) {
+            $this->events->dispatch(new Routing($request));
+
             $this->current = $route = (new AdminRoute($request, $this))->get();
+            $this->container->instance(IlluminateRoute::class, $route);
             $this->container->instance(Route::class, $route);
 
             return $route;
@@ -89,16 +96,16 @@ class Router extends IlluminateRouter
     /**
      * Add WordPress default parameters if WordPress route.
      *
-     * @param  \Themosis\Route\Route  $route
-     * @return \Themosis\Route\Route
+     * @param  Route  $route
+     * @return Route
      */
     public function addWordPressBindings($route)
     {
         global $post, $wp_query;
 
         foreach (compact('post', 'wp_query') as $key => $value) {
-            if ('post' === $key && null === $value && class_exists('WP_Post')) {
-                $value = (new NullableWpPost())
+            if ($key === 'post' && $value === null && class_exists('WP_Post')) {
+                $value = (new NullableWpPost)
                     ->toWpPost();
             }
 

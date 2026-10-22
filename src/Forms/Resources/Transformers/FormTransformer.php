@@ -2,6 +2,7 @@
 
 namespace Themosis\Forms\Resources\Transformers;
 
+use League\Fractal\Resource\Collection;
 use League\Fractal\TransformerAbstract;
 use Themosis\Forms\Contracts\FieldTypeInterface;
 use Themosis\Forms\Contracts\FormInterface;
@@ -42,7 +43,7 @@ class FormTransformer extends TransformerAbstract
      * Include "fields" property to resource.
      *
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeFields(FieldTypeInterface $form)
     {
@@ -50,7 +51,7 @@ class FormTransformer extends TransformerAbstract
         return $this->collection(
             $form->repository()->all(),
             function (FieldTypeInterface $field) {
-                $field = $field->setResourceTransformerFactory(new Factory());
+                $field = $field->setResourceTransformerFactory(new Factory);
                 $transformer = $field->getResourceTransformerFactory()->make($field->getResourceTransformer());
 
                 /** @var FieldTransformer $transformer */
@@ -63,7 +64,7 @@ class FormTransformer extends TransformerAbstract
      * Include "groups" property to resource.
      *
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return Collection
      */
     public function includeGroups(FieldTypeInterface $form)
     {

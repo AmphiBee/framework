@@ -19,7 +19,7 @@ class HtmlBuilder
      * Defaults to UTF8.
      *
      * @param  string  $charset
-     * @return \Themosis\Html\HtmlBuilder
+     * @return HtmlBuilder
      */
     public function setCharset($charset = null)
     {
@@ -37,7 +37,7 @@ class HtmlBuilder
     /**
      * Build a list of HTML attributes from an array.
      *
-     * @param  array  $attributes An array of html tag attributes.
+     * @param  array  $attributes  An array of html tag attributes.
      * @return string The html attributes output.
      */
     public function attributes(array $attributes)
@@ -86,7 +86,7 @@ class HtmlBuilder
     /**
      * Convert HTML characters to entities.
      *
-     * @param  string  $value A string to encode.
+     * @param  string  $value  A string to encode.
      * @return string The encoded character.
      */
     public function entities($value)

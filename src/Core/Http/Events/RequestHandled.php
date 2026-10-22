@@ -2,23 +2,26 @@
 
 namespace Themosis\Core\Http\Events;
 
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+
 class RequestHandled
 {
     /**
-     * @var \Illuminate\Http\Request
+     * @var Request
      */
     public $request;
 
     /**
-     * @var \Illuminate\Http\Response
+     * @var Response
      */
     public $response;
 
     /**
      * RequestHandled constructor.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Http\Response  $response
+     * @param  Request  $request
+     * @param  Response  $response
      */
     public function __construct($request, $response)
     {

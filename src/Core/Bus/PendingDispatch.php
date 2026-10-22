@@ -2,25 +2,36 @@
 
 namespace Themosis\Core\Bus;
 
+use Illuminate\Bus\UniqueLock;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Themosis\Core\Queue\InteractsWithUniqueJobs;
 
 class PendingDispatch
 {
+    use InteractsWithUniqueJobs;
+
     /**
+     * The job.
+     *
      * @var mixed
      */
     protected $job;
 
     /**
-     * Indicated if the job should be dispatched immediately after sending the response.
+     * Indicates if the job should be dispatched immediately after sending the response.
      *
      * @var bool
      */
     protected $afterResponse = false;
 
+    /**
+     * Create a new pending job dispatch.
+     *
+     * @param  mixed  $job
+     */
     public function __construct($job)
     {
         $this->job = $job;
@@ -29,7 +40,7 @@ class PendingDispatch
     /**
      * Set the desired connection for the job.
      *
-     * @param  string|null  $connection
+     * @param  \BackedEnum|string|null  $connection
      * @return $this
      */
     public function onConnection($connection)
@@ -42,7 +53,7 @@ class PendingDispatch
     /**
      * Set the desired queue for the job.
      *
-     * @param  string|null  $queue
+     * @param  \BackedEnum|string|null  $queue
      * @return $this
      */
     public function onQueue($queue)
@@ -53,9 +64,39 @@ class PendingDispatch
     }
 
     /**
+     * Set the desired job "group".
+     *
+     * This feature is only supported by some queues, such as Amazon SQS.
+     *
+     * @param  \UnitEnum|string  $group
+     * @return $this
+     */
+    public function onGroup($group)
+    {
+        $this->job->onGroup($group);
+
+        return $this;
+    }
+
+    /**
+     * Set the desired job deduplicator callback.
+     *
+     * This feature is only supported by some queues, such as Amazon SQS FIFO.
+     *
+     * @param  callable|null  $deduplicator
+     * @return $this
+     */
+    public function withDeduplicator($deduplicator)
+    {
+        $this->job->withDeduplicator($deduplicator);
+
+        return $this;
+    }
+
+    /**
      * Set the desired connection for the chain.
      *
-     * @param  string|null  $connection
+     * @param  \BackedEnum|string|null  $connection
      * @return $this
      */
     public function allOnConnection($connection)
@@ -68,7 +109,7 @@ class PendingDispatch
     /**
      * Set the desired queue for the chain.
      *
-     * @param  string|null  $queue
+     * @param  \BackedEnum|string|null  $queue
      * @return $this
      */
     public function allOnQueue($queue)
@@ -79,7 +120,7 @@ class PendingDispatch
     }
 
     /**
-     * Set the desired delay for the job.
+     * Set the desired delay in seconds for the job.
      *
      * @param  \DateTimeInterface|\DateInterval|int|null  $delay
      * @return $this
@@ -92,7 +133,19 @@ class PendingDispatch
     }
 
     /**
-     * Indicates that the job should be dispatched after all database transactions have committed.
+     * Set the delay for the job to zero seconds.
+     *
+     * @return $this
+     */
+    public function withoutDelay()
+    {
+        $this->job->withoutDelay();
+
+        return $this;
+    }
+
+    /**
+     * Indicate that the job should be dispatched after all database transactions have committed.
      *
      * @return $this
      */
@@ -104,7 +157,7 @@ class PendingDispatch
     }
 
     /**
-     * Indicates that the job should not wait until database transactions have been committed before dispatching.
+     * Indicate that the job should not wait until database transactions have been committed before dispatching.
      *
      * @return $this
      */
@@ -129,13 +182,14 @@ class PendingDispatch
     }
 
     /**
-     * Indicates that the job should be dispatched after the response is sent to the browser.
+     * Indicate that the job should be dispatched after the response is sent to the browser.
      *
+     * @param  bool  $afterResponse
      * @return $this
      */
-    public function afterResponse()
+    public function afterResponse($afterResponse = true)
     {
-        $this->afterResponse = true;
+        $this->afterResponse = $afterResponse;
 
         return $this;
     }
@@ -144,8 +198,6 @@ class PendingDispatch
      * Determine if the job should be dispatched.
      *
      * @return bool
-     *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     protected function shouldDispatch()
     {
@@ -153,18 +205,18 @@ class PendingDispatch
             return true;
         }
 
-        $uniqueId = method_exists($this->job, 'uniqueId')
-            ? $this->job->uniqueId()
-            : ($this->job->uniqueId ?? '');
+        return (new UniqueLock(Container::getInstance()->make(Cache::class)))
+            ->acquire($this->job);
+    }
 
-        $cache = method_exists($this->job, 'uniqueVia')
-            ? $this->job->uniqueVia()
-            : Container::getInstance()->make(Cache::class);
-
-        return (bool) $cache->lock(
-            $key = 'laravel_unique_job:'.get_class($this->job).$uniqueId,
-            $this->job->uniqueFor ?? 0,
-        )->get();
+    /**
+     * Get the underlying job instance.
+     *
+     * @return mixed
+     */
+    public function getJob()
+    {
+        return $this->job;
     }
 
     /**
@@ -183,15 +235,23 @@ class PendingDispatch
 
     /**
      * Handle the object's destruction.
+     *
+     * @return void
      */
     public function __destruct()
     {
+        $this->addUniqueJobInformationToContext($this->job);
+
         if (! $this->shouldDispatch()) {
+            $this->removeUniqueJobInformationFromContext($this->job);
+
             return;
         } elseif ($this->afterResponse) {
             app(Dispatcher::class)->dispatchAfterResponse($this->job);
         } else {
             app(Dispatcher::class)->dispatch($this->job);
         }
+
+        $this->removeUniqueJobInformationFromContext($this->job);
     }
 }

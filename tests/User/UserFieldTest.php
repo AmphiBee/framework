@@ -31,14 +31,14 @@ class UserFieldTest extends TestCase
         $app = $this->getApplication();
 
         return new UserField(
-            new FieldsRepository(),
+            new FieldsRepository,
             new ActionBuilder($app),
             $this->getViewFactory($app),
-            new \Illuminate\Validation\Factory(new Translator(new FileLoader(new Filesystem(), ''), 'en_US')),
+            new \Illuminate\Validation\Factory(new Translator(new FileLoader(new Filesystem, ''), 'en_US')),
         );
     }
 
-    public function testUserWithWrongOptions()
+    public function test_user_with_wrong_options()
     {
         $user = $this->getUserField();
 
@@ -47,7 +47,7 @@ class UserFieldTest extends TestCase
         $user->make(['unknown']);
     }
 
-    public function testUserAddFieldsIndividually()
+    public function test_user_add_fields_individually()
     {
         $fields = $this->getFieldFactory();
         $user = $this->getUserField();
@@ -60,7 +60,7 @@ class UserFieldTest extends TestCase
         $this->assertEquals($message, $user->repository()->getFieldByName('message'));
     }
 
-    public function testUserAddFieldsWithSections()
+    public function test_user_add_fields_with_sections()
     {
         $fields = $this->getFieldFactory();
         $user = $this->getUserField();

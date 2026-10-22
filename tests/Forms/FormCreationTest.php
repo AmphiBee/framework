@@ -43,10 +43,10 @@ class FormCreationTest extends TestCase
             return $this->application;
         }
 
-        $this->application = new Application();
+        $this->application = new Application;
 
         $this->application->bind('config', function () {
-            $config = new Repository();
+            $config = new Repository;
             $config->set('app.locale', 'en_US');
 
             return $config;
@@ -57,7 +57,7 @@ class FormCreationTest extends TestCase
 
     protected function getValidationFactory($locale)
     {
-        $translator = new Translator(new FileLoader(new Filesystem(), ''), $locale);
+        $translator = new Translator(new FileLoader(new Filesystem, ''), $locale);
 
         return new Factory($translator, $this->getApplication());
     }
@@ -70,7 +70,7 @@ class FormCreationTest extends TestCase
 
         $application = $this->getApplication();
 
-        $filesystem = new Filesystem();
+        $filesystem = new Filesystem;
 
         $bladeCompiler = new BladeCompiler(
             $filesystem,
@@ -78,10 +78,10 @@ class FormCreationTest extends TestCase
         );
         $application->instance('blade', $bladeCompiler);
 
-        $resolver = new EngineResolver();
+        $resolver = new EngineResolver;
 
         $resolver->register('php', function () {
-            return new PhpEngine();
+            return new PhpEngine;
         });
 
         $resolver->register('blade', function () use ($bladeCompiler) {
@@ -110,8 +110,8 @@ class FormCreationTest extends TestCase
         return new FormFactory(
             $this->getValidationFactory($locale),
             $this->getViewFactory(),
-            new Manager(),
-            new \Themosis\Forms\Resources\Factory(),
+            new Manager,
+            new \Themosis\Forms\Resources\Factory,
         );
     }
 
@@ -120,9 +120,9 @@ class FormCreationTest extends TestCase
         return new \Themosis\Field\Factory($this->getApplication(), $this->getViewFactory());
     }
 
-    public function testCreateNewForm()
+    public function test_create_new_form()
     {
-        $contact = new ContactEntity();
+        $contact = new ContactEntity;
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
 
@@ -146,9 +146,9 @@ class FormCreationTest extends TestCase
         $this->assertEquals('themosis.form.group', $form->repository()->getGroup('default')->getView(true));
     }
 
-    public function testCreateNewFormAndChangePrefixAtRuntime()
+    public function test_create_new_form_and_change_prefix_at_runtime()
     {
-        $contact = new ContactEntity();
+        $contact = new ContactEntity;
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
 
@@ -171,9 +171,9 @@ class FormCreationTest extends TestCase
         $this->assertEquals(2, count($form->repository()->getFieldsByGroup('default')));
     }
 
-    public function testCreateFormWithMultipleGroups()
+    public function test_create_form_with_multiple_groups()
     {
-        $contact = new ContactEntity();
+        $contact = new ContactEntity;
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
 
@@ -215,7 +215,7 @@ class FormCreationTest extends TestCase
         }
     }
 
-    public function testCreateFormAndValidateUsingValidData()
+    public function test_create_form_and_validate_using_valid_data()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -249,7 +249,7 @@ class FormCreationTest extends TestCase
         $this->assertTrue($form->isValid());
     }
 
-    public function testCreateFormWithErrorsMessages()
+    public function test_create_form_with_errors_messages()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -292,7 +292,7 @@ class FormCreationTest extends TestCase
         );
     }
 
-    public function testFormHasAllDataForRendering()
+    public function test_form_has_all_data_for_rendering()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -363,9 +363,9 @@ class FormCreationTest extends TestCase
         $this->assertTrue($form->isRendered());
     }
 
-    public function testCreateFormFromAClass()
+    public function test_create_form_from_a_class()
     {
-        $class = new ContactForm();
+        $class = new ContactForm;
         $form = $class->build($this->getFormFactory(), $this->getFieldsFactory());
 
         $this->assertInstanceOf(FormInterface::class, $form);
@@ -374,7 +374,7 @@ class FormCreationTest extends TestCase
         $this->assertInstanceOf(FieldTypeInterface::class, $form->repository()->getField('email'));
     }
 
-    public function testFormValuesOnSuccessfulSubmission()
+    public function test_form_values_on_successful_submission()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -404,7 +404,7 @@ class FormCreationTest extends TestCase
         $this->assertEquals('', $email->getRawValue());
     }
 
-    public function testFormValuesOnFailingSubmission()
+    public function test_form_values_on_failing_submission()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -433,7 +433,7 @@ class FormCreationTest extends TestCase
         $this->assertEquals('', $email->getValue());
     }
 
-    public function testFormBasicFieldTypesOnSuccessfulSubmission()
+    public function test_form_basic_field_types_on_successful_submission()
     {
         $factory = $this->getFormFactory('fr_FR');
         $fields = $this->getFieldsFactory();
@@ -471,7 +471,7 @@ class FormCreationTest extends TestCase
         $this->assertEquals('1234', $pass->getValue());
         $this->assertEquals(32, $num->getValue());
         $this->assertTrue(is_string($num->getValue()));
-        $this->assertTrue(32 === $num->getRawValue());
+        $this->assertTrue($num->getRawValue() === 32);
         $this->assertTrue(is_int($num->getRawValue()));
         $this->assertEquals('24,99', $price->getValue());
         $this->assertFalse(is_numeric($price->getValue()));
@@ -482,7 +482,7 @@ class FormCreationTest extends TestCase
         $this->assertEquals('off', $subscribe->getRawValue());
     }
 
-    public function testFormWithChoiceTypeFields()
+    public function test_form_with_choice_type_fields()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -634,7 +634,7 @@ class FormCreationTest extends TestCase
         $this->assertEquals('checkbox', $featured->getLayout());
     }
 
-    public function testChoiceTypeWithCheckboxLayout()
+    public function test_choice_type_with_checkbox_layout()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -664,7 +664,7 @@ class FormCreationTest extends TestCase
         $this->assertEquals([78], $featured->getValue());
     }
 
-    public function testFormFlushFieldsValuesOnSubmissionSuccess()
+    public function test_form_flush_fields_values_on_submission_success()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -687,8 +687,8 @@ class FormCreationTest extends TestCase
 
         $this->assertTrue($form->isValid());
         $this->assertFalse($form->isNotValid());
-        $this->assertEquals($request->get($firstname->getName()), $firstname->getValue());
-        $this->assertEquals($request->get($email->getName()), $email->getValue());
+        $this->assertEquals($request->input($firstname->getName()), $firstname->getValue());
+        $this->assertEquals($request->input($email->getName()), $email->getValue());
 
         $failingRequest = Request::create('/', 'POST', [
             'th_firstname' => 'Gilbert',
@@ -698,11 +698,11 @@ class FormCreationTest extends TestCase
         $form->handleRequest($failingRequest);
 
         $this->assertFalse($form->isValid());
-        $this->assertEquals($failingRequest->get($firstname->getName()), $firstname->getValue());
+        $this->assertEquals($failingRequest->input($firstname->getName()), $firstname->getValue());
         $this->assertEmpty($email->getValue());
     }
 
-    public function testFormFieldsHaveErrorsMessagesOnFailingSubmission()
+    public function test_form_fields_have_errors_messages_on_failing_submission()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -758,7 +758,7 @@ class FormCreationTest extends TestCase
         $this->assertEquals('The subscribe option must be checked.', $subscribe->error($subscribe->getName(), true));
     }
 
-    public function testFormGlobalErrorPropertyIsPassedToTheFields()
+    public function test_form_global_error_property_is_passed_to_the_fields()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -775,7 +775,7 @@ class FormCreationTest extends TestCase
         $this->assertFalse($message->getOption('errors'));
     }
 
-    public function testFormTheming()
+    public function test_form_theming()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -818,7 +818,7 @@ class FormCreationTest extends TestCase
         $this->assertEquals('themosis.types.email', $email->getView());
     }
 
-    public function testFormOpenAndClosingTags()
+    public function test_form_open_and_closing_tags()
     {
         $factory = $this->getFormFactory();
 
@@ -835,7 +835,7 @@ class FormCreationTest extends TestCase
         $this->assertFalse($form->getOption('tags'));
     }
 
-    public function testFormHiddenFieldType()
+    public function test_form_hidden_field_type()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -853,7 +853,7 @@ class FormCreationTest extends TestCase
         $this->assertEquals('something', $form->repository()->getFieldByName('action')->getValue());
     }
 
-    public function testFormCreationWithFieldFactory()
+    public function test_form_creation_with_field_factory()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -902,7 +902,7 @@ class FormCreationTest extends TestCase
         $this->assertFalse($form->isValid());
     }
 
-    public function testFormFieldsInfoProperty()
+    public function test_form_fields_info_property()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -922,7 +922,7 @@ class FormCreationTest extends TestCase
         $this->assertEquals('<strong>HTML</strong>', $form->repository()->getField('message')->getOption('info'));
     }
 
-    public function testFormFieldsTypeProperty()
+    public function test_form_fields_type_property()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -969,7 +969,7 @@ class FormCreationTest extends TestCase
         ], $data);
     }
 
-    public function testFormWithoutFieldsToJSON()
+    public function test_form_without_fields_to_json()
     {
         $factory = $this->getFormFactory();
 
@@ -994,7 +994,7 @@ class FormCreationTest extends TestCase
         ])), $form->toJson());
     }
 
-    public function testFormWithFieldsToJSON()
+    public function test_form_with_fields_to_json()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -1095,7 +1095,7 @@ class FormCreationTest extends TestCase
         ])), $form->toJson());
     }
 
-    public function testFormWithValidationToJSON()
+    public function test_form_with_validation_to_json()
     {
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -1148,9 +1148,9 @@ class FormCreationTest extends TestCase
         );
     }
 
-    public function testFormGetDataObjectDefaultValues()
+    public function test_form_get_data_object_default_values()
     {
-        $dto = new CreateArticleData();
+        $dto = new CreateArticleData;
         $dto->title = 'Hello World';
         $dto->setAuthor('Marcel Proust');
 
@@ -1167,9 +1167,9 @@ class FormCreationTest extends TestCase
         $this->assertEquals($dto->getAuthor(), $form->repository()->getFieldByName($author->getBaseName())->getValue());
     }
 
-    public function testFormSetDataObjectValuesWithValidRequest()
+    public function test_form_set_data_object_values_with_valid_request()
     {
-        $dto = new ContactFormRequestData();
+        $dto = new ContactFormRequestData;
 
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
@@ -1201,17 +1201,17 @@ class FormCreationTest extends TestCase
         $form->handleRequest($request);
 
         $this->assertTrue($form->isValid());
-        $this->assertEquals($request->get($name->getName()), $dto->getFullname());
-        $this->assertEquals($request->get($email->getName()), $dto->getEmail());
-        $this->assertEquals($request->get($message->getName()), $dto->getMessage());
+        $this->assertEquals($request->input($name->getName()), $dto->getFullname());
+        $this->assertEquals($request->input($email->getName()), $dto->getEmail());
+        $this->assertEquals($request->input($message->getName()), $dto->getMessage());
         $this->assertTrue($dto->getSubscribe());
         $this->assertFalse($dto->getFollow());
-        $this->assertEquals($request->get($colors->getName()), $dto->getColors());
+        $this->assertEquals($request->input($colors->getName()), $dto->getColors());
     }
 
-    public function testFormUseDataObjectDefaultValuesAndSetRequestValuesOnSuccess()
+    public function test_form_use_data_object_default_values_and_set_request_values_on_success()
     {
-        $dto = new CreateArticleData();
+        $dto = new CreateArticleData;
         $dto->title = 'Hello World';
 
         $factory = $this->getFormFactory();
@@ -1231,14 +1231,14 @@ class FormCreationTest extends TestCase
 
         $form->handleRequest($request);
 
-        $this->assertEquals($request->get($title->getName()), $dto->title);
-        $this->assertEquals($request->get($content->getName()), $dto->content);
-        $this->assertEquals($request->get($author->getName()), $dto->getAuthor());
+        $this->assertEquals($request->input($title->getName()), $dto->title);
+        $this->assertEquals($request->input($content->getName()), $dto->content);
+        $this->assertEquals($request->input($author->getName()), $dto->getAuthor());
     }
 
-    public function testFormUseDataObjectDefaultValuesAndManageRequestValuesOnFailure()
+    public function test_form_use_data_object_default_values_and_manage_request_values_on_failure()
     {
-        $dto = new CreateArticleData();
+        $dto = new CreateArticleData;
         $dto->setAuthor('Marcel');
 
         $factory = $this->getFormFactory();
@@ -1265,7 +1265,7 @@ class FormCreationTest extends TestCase
         $form->handleRequest($request);
 
         $this->assertEmpty($dto->title);
-        $this->assertEquals($request->get($content->getName()), $dto->content);
+        $this->assertEquals($request->input($content->getName()), $dto->content);
         $this->assertEmpty($dto->getAuthor());
     }
 
@@ -1288,7 +1288,7 @@ class FormCreationTest extends TestCase
         $factory = $this->getFormFactory();
         $fields = $this->getFieldsFactory();
 
-        $form = $factory->make(new CheckboxDto())
+        $form = $factory->make(new CheckboxDto)
             ->add($fields->checkbox('subscribe'))
             ->get();
 

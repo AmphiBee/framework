@@ -3,9 +3,10 @@
 namespace Themosis\Support\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Twig\Environment;
 
 /**
- * @see \Twig\Environment
+ * @see Environment
  */
 class Twig extends Facade
 {

@@ -75,7 +75,7 @@ class User extends \WP_User
 
         $update = update_user_meta($this->ID, $key, $value, $previous);
 
-        if (false === $update) {
+        if ($update === false) {
             throw new UserException("Cannot update user meta data with a key of [$key]");
         }
 

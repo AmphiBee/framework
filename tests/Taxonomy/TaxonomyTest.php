@@ -35,7 +35,7 @@ class TaxonomyTest extends TestCase
         );
     }
 
-    public function testCreateTaxonomyWithDefaults()
+    public function test_create_taxonomy_with_defaults()
     {
         $factory = $this->getFactory();
 
@@ -51,7 +51,7 @@ class TaxonomyTest extends TestCase
         $this->assertEquals(['post', 'page'], $taxonomy->getObjects());
     }
 
-    public function testCreateCustomTaxonomy()
+    public function test_create_custom_taxonomy()
     {
         $factory = $this->getFactory();
 
@@ -69,9 +69,9 @@ class TaxonomyTest extends TestCase
         $this->assertEquals(['projects', 'post', 'wireframes'], $taxonomy->getObjects());
     }
 
-    public function testTaxonomyRepositoryCanAddFields()
+    public function test_taxonomy_repository_can_add_fields()
     {
-        $repository = new TaxonomyFieldRepository();
+        $repository = new TaxonomyFieldRepository;
         $fields = $this->getFieldsFactory();
 
         $repository->add($note = $fields->text('note'));
@@ -87,7 +87,7 @@ class TaxonomyTest extends TestCase
         $this->assertEquals($email, $repository->getFieldByName('email'));
     }
 
-    public function testTaxonomyField()
+    public function test_taxonomy_field()
     {
         $factory = $this->getFactory();
         $fields = $this->getFieldsFactory();
@@ -96,9 +96,9 @@ class TaxonomyTest extends TestCase
 
         $taxonomyField = new TaxonomyField(
             $taxonomy,
-            $repository = new TaxonomyFieldRepository(),
+            $repository = new TaxonomyFieldRepository,
             $this->getViewFactory($this->getApplication()),
-            new \Illuminate\Validation\Factory(new Translator(new FileLoader(new Filesystem(), ''), 'en_US')),
+            new \Illuminate\Validation\Factory(new Translator(new FileLoader(new Filesystem, ''), 'en_US')),
             new ActionBuilder($this->getApplication()),
             ['theme' => 'themosis.taxonomy', 'prefix' => 'wp_'],
         );

@@ -26,10 +26,10 @@ class MetaboxTest extends TestCase
             return $this->application;
         }
 
-        $this->application = new Application();
+        $this->application = new Application;
 
         $this->application->bind('config', function () {
-            $config = new Repository();
+            $config = new Repository;
             $config->set('app.locale', 'en_US');
 
             return $config;
@@ -45,13 +45,13 @@ class MetaboxTest extends TestCase
             new ActionBuilder($this->getApplication()),
             new FilterBuilder($this->getApplication()),
             $this->getMetaboxResource(),
-            new FieldsRepository(),
+            new FieldsRepository,
         );
     }
 
     protected function getMetaboxResource()
     {
-        return new MetaboxResource(new Manager(), new ArraySerializer(), new MetaboxTransformer());
+        return new MetaboxResource(new Manager, new ArraySerializer, new MetaboxTransformer);
     }
 
     protected function getFieldsFactory()
@@ -63,7 +63,7 @@ class MetaboxTest extends TestCase
         return new \Themosis\Field\Factory($this->getApplication(), $viewFactory);
     }
 
-    public function testCreateEmptyMetaboxWithDefaultArguments()
+    public function test_create_empty_metabox_with_default_arguments()
     {
         $factory = $this->getFactory();
 
@@ -82,7 +82,7 @@ class MetaboxTest extends TestCase
         $this->assertEquals('th_', $box->getPrefix());
     }
 
-    public function testCreateMetaboxWithCustomFields()
+    public function test_create_metabox_with_custom_fields()
     {
         $factory = $this->getFactory();
         $fields = $this->getFieldsFactory();
@@ -105,7 +105,7 @@ class MetaboxTest extends TestCase
         $this->assertEquals('secondary', $fieldEmail->getOption('group'));
     }
 
-    public function testCreateMetaboxResourceWithNoFields()
+    public function test_create_metabox_resource_with_no_fields()
     {
         $factory = $this->getFactory();
 
@@ -134,7 +134,7 @@ class MetaboxTest extends TestCase
         $this->assertEquals(json_encode($expected), $box->toJson());
     }
 
-    public function testCreateMetaboxResourceWithCustomFields()
+    public function test_create_metabox_resource_with_custom_fields()
     {
         $factory = $this->getFactory();
         $fields = $this->getFieldsFactory();
@@ -203,7 +203,7 @@ class MetaboxTest extends TestCase
         $this->assertEquals(json_encode($expected), $box->toJson());
     }
 
-    public function testAddSectionsAndFieldsToMetabox()
+    public function test_add_sections_and_fields_to_metabox()
     {
         $factory = $this->getFactory();
         $fields = $this->getFieldsFactory();
@@ -234,7 +234,7 @@ class MetaboxTest extends TestCase
         $this->assertEquals(2, count($box->repository()->getGroup('social')->getItems()));
     }
 
-    public function testAddTranslationsToMetabox()
+    public function test_add_translations_to_metabox()
     {
         $factory = $this->getFactory();
 
@@ -248,7 +248,7 @@ class MetaboxTest extends TestCase
         ], $box->getTranslations());
     }
 
-    public function testAddCapabilityToMetabox()
+    public function test_add_capability_to_metabox()
     {
         $factory = $this->getFactory();
 
@@ -259,7 +259,7 @@ class MetaboxTest extends TestCase
         $this->assertEquals('edit_posts', $box->getCapability());
     }
 
-    public function testAddTemplatesToMetabox()
+    public function test_add_templates_to_metabox()
     {
         $factory = $this->getFactory();
 

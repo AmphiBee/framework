@@ -20,10 +20,10 @@ class ThemeManagerTest extends TestCase
             return $this->app;
         }
 
-        $app = new Application();
+        $app = new Application;
 
         $app->singleton('config', function () {
-            return new Repository();
+            return new Repository;
         });
 
         $app->bind('filter', function ($app) {
@@ -37,10 +37,10 @@ class ThemeManagerTest extends TestCase
     {
         $app = $this->getApplication();
 
-        return new ThemeManager($app, $app->themesPath('underscore'), new ClassLoader());
+        return new ThemeManager($app, $app->themesPath('underscore'), new ClassLoader);
     }
 
-    public function testManagerBootstrapTheme()
+    public function test_manager_bootstrap_theme()
     {
         $app = $this->getApplication();
         $theme = $this->getThemeManager();
@@ -50,7 +50,7 @@ class ThemeManagerTest extends TestCase
         $this->assertInstanceOf(RouteServiceProvider::class, $app->getProvider('Theme\Providers\RouteServiceProvider'));
     }
 
-    public function testThemeManagerCanStoreThemeHeaders()
+    public function test_theme_manager_can_store_theme_headers()
     {
         $app = $this->getApplication();
         $theme = $this->getThemeManager();
@@ -62,7 +62,7 @@ class ThemeManagerTest extends TestCase
         $this->assertEquals('1.0.0', $headers['version']);
     }
 
-    public function testThemeManagerSetThemeTextdomainConstant()
+    public function test_theme_manager_set_theme_textdomain_constant()
     {
         $app = $this->getApplication();
         $theme = $this->getThemeManager();
@@ -73,7 +73,7 @@ class ThemeManagerTest extends TestCase
         $this->assertEquals('_s', THEME_TD);
     }
 
-    public function testThemeManagerRegisterImageSizes()
+    public function test_theme_manager_register_image_sizes()
     {
         $app = $this->getApplication();
         $theme = $this->getThemeManager();
@@ -106,7 +106,7 @@ class ThemeManagerTest extends TestCase
         ], $sizes['no-dropdown']);
     }
 
-    public function testThemeManagerSetTheThemeDirectoryProperty()
+    public function test_theme_manager_set_the_theme_directory_property()
     {
         $app = $this->getApplication();
         $theme = $this->getThemeManager();
@@ -115,7 +115,7 @@ class ThemeManagerTest extends TestCase
         $this->assertEquals('underscore', $theme->getDirectory());
     }
 
-    public function testThemeManagerCanAutoIncludesFiles()
+    public function test_theme_manager_can_auto_includes_files()
     {
         $app = $this->getApplication();
         $theme = $this->getThemeManager();

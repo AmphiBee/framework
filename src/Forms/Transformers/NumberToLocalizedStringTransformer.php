@@ -36,7 +36,7 @@ class NumberToLocalizedStringTransformer implements DataTransformerInterface
      */
     public function transform($data)
     {
-        if (is_null($data) || '' === $data) {
+        if (is_null($data) || $data === '') {
             return '';
         }
 

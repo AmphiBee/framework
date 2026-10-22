@@ -4,6 +4,8 @@ use PHPUnit\Framework\TestCase;
 use Themosis\Core\Application;
 use Themosis\Hook\ActionBuilder;
 
+require_once __DIR__.'/AnActionClassForTest.php';
+
 class ActionTest extends TestCase
 {
     /**
@@ -11,23 +13,22 @@ class ActionTest extends TestCase
      */
     protected $app;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        $this->app = new Application();
+        $this->app = new Application;
     }
 
-    public function testActionWithClosure()
+    public function test_action_with_closure()
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addAction'])
+            ->onlyMethods(['addAction'])
             ->getMock();
 
         $action->expects($this->once())
             ->method('addAction');
 
-        $action->add('init_test', function () {
-        });
+        $action->add('init_test', function () {});
 
         // Check if this action is registered.
         $this->assertTrue($action->exists('init_test'));
@@ -42,11 +43,11 @@ class ActionTest extends TestCase
         $this->assertEquals(3, $action->getCallback('init_test')[2]);
     }
 
-    public function testActionWithClass()
+    public function test_action_with_class()
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addAction'])
+            ->onlyMethods(['addAction'])
             ->getMock();
 
         $action->expects($this->exactly(2))
@@ -59,7 +60,7 @@ class ActionTest extends TestCase
         $this->assertTrue($action->exists('a_custom_action'));
 
         // Check the attached callback is an array with instance of AnActionClassForTest.
-        $class = new AnActionClassForTest();
+        $class = new AnActionClassForTest;
         $this->assertEquals([$class, 'a_custom_action'], $action->getCallback('a_custom_action')[0]);
 
         // Check defined priority.
@@ -77,11 +78,11 @@ class ActionTest extends TestCase
         $this->assertEquals([$class, 'customName'], $action->getCallback('another_hook')[0]);
     }
 
-    public function testActionWithNamedCallback()
+    public function test_action_with_named_callback()
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addAction'])
+            ->onlyMethods(['addAction'])
             ->getMock();
 
         $action->expects($this->once())->method('addAction');
@@ -95,11 +96,11 @@ class ActionTest extends TestCase
         $this->assertTrue(is_callable($action->getCallback('some_hook')[0]));
     }
 
-    public function testActionUsingCurrentInstance()
+    public function test_action_using_current_instance()
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addAction'])
+            ->onlyMethods(['addAction'])
             ->getMock();
 
         $action->expects($this->once())->method('addAction');
@@ -114,11 +115,11 @@ class ActionTest extends TestCase
         $this->assertInstanceOf('ActionTest', $action->getCallback('after-custom-setup')[0][0]);
     }
 
-    public function testActionIsRanWithoutArguments()
+    public function test_action_is_ran_without_arguments()
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['doAction'])
+            ->onlyMethods(['doAction'])
             ->getMock();
 
         $action->expects($this->exactly(2))
@@ -130,11 +131,11 @@ class ActionTest extends TestCase
         $action->run('my-custom-hook');
     }
 
-    public function testActionIsRanWithMultipleArguments()
+    public function test_action_is_ran_with_multiple_arguments()
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['doActionRefArray'])
+            ->onlyMethods(['doActionRefArray'])
             ->getMock();
 
         $action->expects($this->exactly(2))->method('doActionRefArray');
@@ -145,11 +146,11 @@ class ActionTest extends TestCase
         $action->run('some-hook', ['value4', 'value5']);
     }
 
-    public function testCanListenToMultipleActionsAtOnce()
+    public function test_can_listen_to_multiple_actions_at_once()
     {
         $action = $this->getMockBuilder(ActionBuilder::class)
             ->setConstructorArgs([$this->app])
-            ->setMethods(['addAction'])
+            ->onlyMethods(['addAction'])
             ->getMock();
 
         $action->expects($this->exactly(3))->method('addAction');

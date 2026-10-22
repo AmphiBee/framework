@@ -3,8 +3,10 @@
 namespace Themosis\Core;
 
 use Exception;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\ServiceProvider;
 
 class ProviderRepository
 {
@@ -34,7 +36,7 @@ class ProviderRepository
      * Register application service providers.
      *
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      * @throws Exception
      */
     public function load(array $providers)
@@ -76,7 +78,7 @@ class ProviderRepository
      *
      * @return array|null
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function loadManifest()
     {
@@ -87,6 +89,8 @@ class ProviderRepository
                 return array_merge(['when' => []], $manifest);
             }
         }
+
+        return null;
     }
 
     /**
@@ -166,11 +170,11 @@ class ProviderRepository
      */
     public function writeManifest(array $manifest)
     {
-        if (! is_writable(dirname($this->manifestPath))) {
-            throw new Exception('The bootstrap/cache directory must be present and writable.');
+        if (! is_writable($dirname = dirname($this->manifestPath))) {
+            throw new Exception("The {$dirname} directory must be present and writable.");
         }
 
-        $this->files->put(
+        $this->files->replace(
             $this->manifestPath,
             '<?php return '.var_export($manifest, true).';',
         );
@@ -182,7 +186,7 @@ class ProviderRepository
      * Create a new provider instance.
      *
      * @param  string  $provider
-     * @return \Illuminate\Support\ServiceProvider
+     * @return ServiceProvider
      */
     public function createProvider($provider)
     {

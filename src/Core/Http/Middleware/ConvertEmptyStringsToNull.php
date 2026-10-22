@@ -3,6 +3,7 @@
 namespace Themosis\Core\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\Request;
 
 class ConvertEmptyStringsToNull extends TransformsRequest
 {
@@ -24,7 +25,7 @@ class ConvertEmptyStringsToNull extends TransformsRequest
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -48,5 +49,15 @@ class ConvertEmptyStringsToNull extends TransformsRequest
     protected function transform($key, $value)
     {
         return is_string($value) && $value === '' ? null : $value;
+    }
+
+    /**
+     * Flush the middleware's global state.
+     *
+     * @return void
+     */
+    public static function flushState()
+    {
+        static::$skipCallbacks = [];
     }
 }

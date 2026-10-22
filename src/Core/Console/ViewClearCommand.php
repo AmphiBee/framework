@@ -48,7 +48,9 @@ class ViewClearCommand extends Command
             $this->files->delete($view);
         }
 
-        $this->files->deleteDirectories($twigPath);
+        if ($this->files->isDirectory($twigPath)) {
+            $this->files->deleteDirectories($twigPath);
+        }
 
         $this->info('Compiled views cleared.');
     }

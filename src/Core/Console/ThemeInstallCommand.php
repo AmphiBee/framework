@@ -67,7 +67,7 @@ class ThemeInstallCommand extends Command
     /**
      * Install theme.
      *
-     * @param  string  $name The theme name from user
+     * @param  string  $name  The theme name from user
      */
     protected function installTheme(string $name)
     {
@@ -75,7 +75,7 @@ class ThemeInstallCommand extends Command
 
         $this->files->put($this->temp, fopen($this->option('url'), 'r'));
 
-        if (true !== $this->zip->open($this->temp)) {
+        if ($this->zip->open($this->temp) !== true) {
             $this->error('Cannot open theme zip file.');
         }
 

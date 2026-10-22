@@ -69,7 +69,7 @@ class ViewCacheCommand extends Command
     /**
      * Get all of the possible view paths.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     protected function paths()
     {

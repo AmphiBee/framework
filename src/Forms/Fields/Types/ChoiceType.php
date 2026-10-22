@@ -14,7 +14,7 @@ use Themosis\Forms\Fields\Contracts\CanHandleUsers;
 use Themosis\Forms\Resources\Transformers\ChoiceFieldTransformer;
 use Themosis\Forms\Transformers\ChoiceToValueTransformer;
 
-class ChoiceType extends BaseType implements CheckableInterface, SelectableInterface, CanHandleMetabox, CanHandlePageSettings, CanHandleTerms, CanHandleUsers
+class ChoiceType extends BaseType implements CanHandleMetabox, CanHandlePageSettings, CanHandleTerms, CanHandleUsers, CheckableInterface, SelectableInterface
 {
     /**
      * Field layout.
@@ -58,7 +58,7 @@ class ChoiceType extends BaseType implements CheckableInterface, SelectableInter
         $this->allowedOptions = $this->setAllowedOptions();
         $this->defaultOptions = $this->setDefaultOptions();
 
-        $this->setTransformer(new ChoiceToValueTransformer());
+        $this->setTransformer(new ChoiceToValueTransformer);
     }
 
     /**
@@ -114,7 +114,7 @@ class ChoiceType extends BaseType implements CheckableInterface, SelectableInter
         $this->setLayout($options['expanded'], $options['multiple']);
 
         // Set the "multiple" attribute for <select> tag.
-        if ('select' === $this->getLayout() && $options['multiple']) {
+        if ($this->getLayout() === 'select' && $options['multiple']) {
             // We're using a <select> tag with the multiple option set to true.
             // So we're going to directly inject the multiple attribute.
             $options['attributes'][] = 'multiple';
@@ -132,7 +132,7 @@ class ChoiceType extends BaseType implements CheckableInterface, SelectableInter
      */
     protected function setLayout($expanded = false, $multiple = false)
     {
-        if ($expanded && false === $multiple) {
+        if ($expanded && $multiple === false) {
             $this->layout = 'radio';
         } elseif ($expanded && $multiple) {
             $this->layout = 'checkbox';
@@ -144,7 +144,7 @@ class ChoiceType extends BaseType implements CheckableInterface, SelectableInter
     /**
      * Return choice type field options.
      */
-    public function getOptions(array $excludes = null): array
+    public function getOptions(?array $excludes = null): array
     {
         $options = parent::getOptions($excludes);
 

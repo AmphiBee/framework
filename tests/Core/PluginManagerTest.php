@@ -19,10 +19,10 @@ class PluginManagerTest extends TestCase
             return $this->app;
         }
 
-        $app = new Application();
+        $app = new Application;
 
         $app->singleton('config', function () {
-            return new Repository();
+            return new Repository;
         });
 
         return $this->app = $app;
@@ -32,10 +32,10 @@ class PluginManagerTest extends TestCase
     {
         $app = $this->getApplication();
 
-        return (new PluginManager($app, $app->pluginsPath('timeline'.DIRECTORY_SEPARATOR.'timeline.php'), new ClassLoader()))->load('config');
+        return (new PluginManager($app, $app->pluginsPath('timeline'.DIRECTORY_SEPARATOR.'timeline.php'), new ClassLoader))->load('config');
     }
 
-    public function testManagerBootstrapPlugin()
+    public function test_manager_bootstrap_plugin()
     {
         $plugin = $this->getPlugin();
 
@@ -46,7 +46,7 @@ class PluginManagerTest extends TestCase
         $this->assertEquals($this->getApplication()->pluginsPath('timeline'.DIRECTORY_SEPARATOR.'dist'), $plugin->getPath('dist'));
     }
 
-    public function testPluginHeaders()
+    public function test_plugin_headers()
     {
         $plugin = $this->getPlugin();
 
@@ -56,7 +56,7 @@ class PluginManagerTest extends TestCase
         $this->assertEquals('namespace', $plugin->getHeader('plugin_prefix'));
     }
 
-    public function testPluginConfiguration()
+    public function test_plugin_configuration()
     {
         $plugin = $this->getPlugin();
 
@@ -68,7 +68,7 @@ class PluginManagerTest extends TestCase
         $this->assertEquals(['views'], $plugin->config('plugin.views'));
     }
 
-    public function testPluginRegisterServicesProviders()
+    public function test_plugin_register_services_providers()
     {
         $app = $this->getApplication();
         $plugin = $this->getPlugin();

@@ -3,7 +3,9 @@
 namespace Themosis\Core;
 
 use Exception;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Env;
 
 class PackageManifest
 {
@@ -37,7 +39,7 @@ class PackageManifest
         $this->files = $files;
         $this->basePath = $basePath;
         $this->manifestPath = $manifestPath;
-        $this->vendorPath = $basePath.'/vendor';
+        $this->vendorPath = Env::get('COMPOSER_VENDOR_DIR') ?: $basePath.'/vendor';
     }
 
     /**
@@ -45,7 +47,7 @@ class PackageManifest
      *
      * @return array
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function aliases()
     {
@@ -57,7 +59,7 @@ class PackageManifest
      *
      * @return array
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function providers()
     {
@@ -70,7 +72,7 @@ class PackageManifest
      * @param  string  $key
      * @return array
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function get($key = 'aliases')
     {
@@ -84,7 +86,7 @@ class PackageManifest
      *
      * @return array
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function getManifest()
     {

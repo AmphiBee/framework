@@ -57,7 +57,7 @@ class ButtonType extends BaseType implements DataTransformerInterface
         $options = parent::parseOptions($options);
 
         // Set some default CSS classes if chosen theme is "bootstrap".
-        if (isset($options['theme']) && 'bootstrap' === $options['theme']) {
+        if (isset($options['theme']) && $options['theme'] === 'bootstrap') {
             $options['attributes']['class'] = isset($options['attributes']['class']) ?
                 ' btn btn-primary' : 'btn btn-primary';
         }

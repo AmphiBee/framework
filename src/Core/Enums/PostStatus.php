@@ -21,7 +21,7 @@ class PostStatus extends Enum
     protected static function values(): Closure
     {
         return function (string $name) {
-            if ('autoDraft' === $name) {
+            if ($name === 'autoDraft') {
                 return 'auto-draft';
             }
 

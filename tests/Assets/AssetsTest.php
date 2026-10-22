@@ -17,7 +17,7 @@ class AssetsTest extends TestCase
 {
     public function getFinder()
     {
-        $finder = new Finder(new Filesystem());
+        $finder = new Finder(new Filesystem);
         $finder->addLocation(
             __DIR__.'/files',
             'https://www.domain.com/dist',
@@ -28,19 +28,19 @@ class AssetsTest extends TestCase
 
     public function getFactory()
     {
-        $app = new Application();
+        $app = new Application;
 
         return new Factory(
             $this->getFinder(),
             new ActionBuilder($app),
             new FilterBuilder($app),
-            new HtmlBuilder(),
+            new HtmlBuilder,
         );
     }
 
-    public function testAssetFinderCanAddLocations()
+    public function test_asset_finder_can_add_locations()
     {
-        $finder = new Finder(new Filesystem());
+        $finder = new Finder(new Filesystem);
 
         $finder->addLocation(
             '/home/www/htdocs/content/themes/themosis/dist',
@@ -74,9 +74,9 @@ class AssetsTest extends TestCase
         ], array_values($finder->getLocations()));
     }
 
-    public function testAssetFinderFindLocalAssetFiles()
+    public function test_asset_finder_find_local_asset_files()
     {
-        $finder = new Finder(new Filesystem());
+        $finder = new Finder(new Filesystem);
 
         $finder->addLocation(
             __DIR__.'/files/',
@@ -96,9 +96,9 @@ class AssetsTest extends TestCase
         $this->assertEquals('https://www.domain.com/dist/js/carousel.js', $file->getUrl());
     }
 
-    public function testAssetFinderFindExternalAssets()
+    public function test_asset_finder_find_external_assets()
     {
-        $finder = new Finder(new Filesystem());
+        $finder = new Finder(new Filesystem);
 
         $file = $finder->find('https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js');
 
@@ -119,7 +119,7 @@ class AssetsTest extends TestCase
         $this->assertTrue($file->isExternal());
     }
 
-    public function testAssetsFactoryReturnAssetInstance()
+    public function test_assets_factory_return_asset_instance()
     {
         $factory = $this->getFactory();
 
@@ -135,7 +135,7 @@ class AssetsTest extends TestCase
         );
     }
 
-    public function testAddAssetWithDefaults()
+    public function test_add_asset_with_defaults()
     {
         $factory = $this->getFactory();
 
@@ -162,7 +162,7 @@ class AssetsTest extends TestCase
         $this->assertEquals('style', $asset->getType());
     }
 
-    public function testAddAssetsWithDependencies()
+    public function test_add_assets_with_dependencies()
     {
         $factory = $this->getFactory();
 
@@ -178,7 +178,7 @@ class AssetsTest extends TestCase
         ], $asset->getDependencies());
     }
 
-    public function testAddAssetsWithVersioning()
+    public function test_add_assets_with_versioning()
     {
         $factory = $this->getFactory();
 
@@ -191,7 +191,7 @@ class AssetsTest extends TestCase
         $this->assertFalse($asset->getVersion());
     }
 
-    public function testAddAssetsAndDiscoverOrSetFileType()
+    public function test_add_assets_and_discover_or_set_file_type()
     {
         $factory = $this->getFactory();
 
@@ -219,7 +219,7 @@ class AssetsTest extends TestCase
         $this->assertEquals('style', $asset->getType());
     }
 
-    public function testAddAssetsWithCustomArgument()
+    public function test_add_assets_with_custom_argument()
     {
         $factory = $this->getFactory();
 

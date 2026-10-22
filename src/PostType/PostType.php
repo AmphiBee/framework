@@ -305,14 +305,14 @@ class PostType implements PostTypeInterface
     /**
      * Apply the selected status on post save.
      *
-     * @param  string  $value The translated value by WordPress ("publish").
+     * @param  string  $value  The translated value by WordPress ("publish").
      * @return string
      */
     public function applyStatus(string $value)
     {
         if (isset($_POST['post_type']) && $this->slug === $_POST['post_type'] && ! empty($this->status)) {
-            if ((isset($_POST['post_status']) && 'publish' === $_POST['post_status'])
-            && (isset($_REQUEST['post_status']) && 'draft' === $_REQUEST['post_status'])) {
+            if ((isset($_POST['post_status']) && $_POST['post_status'] === 'publish')
+            && (isset($_REQUEST['post_status']) && $_REQUEST['post_status'] === 'draft')) {
                 // New post with draft status as default and "publish" button is clicked.
                 // Let's set to first registered status.
                 $statuses = array_keys($this->status);

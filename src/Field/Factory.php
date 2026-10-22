@@ -5,6 +5,7 @@ namespace Themosis\Field;
 use Illuminate\Contracts\View\Factory as ViewFactoryInterface;
 use Themosis\Core\Application;
 use Themosis\Field\Contracts\FieldFactoryInterface;
+use Themosis\Field\Fields\DateField;
 use Themosis\Forms\Contracts\FieldTypeInterface;
 use Themosis\Forms\Fields\Types\ButtonType;
 use Themosis\Forms\Fields\Types\CheckboxType;
@@ -101,10 +102,10 @@ class Factory implements FieldFactoryInterface
     /**
      * Return a DateField instance.
      *
-     * @param  string  $name       The name attribute of the date input.
-     * @param  array  $features   Custom field features - title, info.
-     * @param  array  $attributes Input html attributes.
-     * @return \Themosis\Field\Fields\DateField
+     * @param  string  $name  The name attribute of the date input.
+     * @param  array  $features  Custom field features - title, info.
+     * @param  array  $attributes  Input html attributes.
+     * @return DateField
      */
     public function date($name, array $features = [], array $attributes = [])
     {

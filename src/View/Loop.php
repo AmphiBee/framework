@@ -17,7 +17,7 @@ class Loop
     /**
      * Get the title of the current post.
      *
-     * @param  int|\WP_post  $post The post ID or \WP_Post object
+     * @param  int|\WP_Post  $post  The post ID or \WP_Post object
      * @return string The title of the current post.
      */
     public function title($post = null)
@@ -38,8 +38,8 @@ class Loop
     /**
      * Get author meta.
      *
-     * @param  string  $field   User field name.
-     * @param  int  $user_id The user ID.
+     * @param  string  $field  User field name.
+     * @param  int  $user_id  The user ID.
      * @return string
      */
     public function authorMeta($field = '', $user_id = 0)
@@ -50,8 +50,8 @@ class Loop
     /**
      * Get the content of the current post.
      *
-     * @param  string  $more_text    Content to show when there is more text.
-     * @param  bool  $strip_teaser Strip teaser content before the more text.
+     * @param  string  $more_text  Content to show when there is more text.
+     * @param  bool  $strip_teaser  Strip teaser content before the more text.
      * @return string The content of the current post.
      */
     public function content($more_text = null, $strip_teaser = false)
@@ -76,9 +76,9 @@ class Loop
     /**
      * Get the post thumbnail of the current post.
      *
-     * @param  string|array  $size The size of the current post thumbnail.
-     * @param  string|array  $attr The attributes of the current post thumbnail.
-     * @param  int|\WP_Post  $post The post ID or WP_Post object.
+     * @param  string|array  $size  The size of the current post thumbnail.
+     * @param  string|array  $attr  The attributes of the current post thumbnail.
+     * @param  int|\WP_Post  $post  The post ID or WP_Post object.
      * @return string
      */
     public function thumbnail($size = 'post-thumbnail', $attr = '', $post = null)
@@ -93,7 +93,7 @@ class Loop
     /**
      * Get thumbnail url of current post.
      *
-     * @param  string|array  $size The size of the current post thumbnail.
+     * @param  string|array  $size  The size of the current post thumbnail.
      * @param  bool  $icon
      * @return null|string
      */
@@ -107,8 +107,8 @@ class Loop
     /**
      * Get the permalink of the current post.
      *
-     * @param  int|\WP_Post  $post      The post ID or WP_Post object.
-     * @param  bool  $leavename Keep or not the post name.
+     * @param  int|\WP_Post  $post  The post ID or WP_Post object.
+     * @param  bool  $leavename  Keep or not the post name.
      * @return string The permalink of the current post.
      */
     public function link($post = 0, $leavename = false)
@@ -119,7 +119,7 @@ class Loop
     /**
      * Get the categories of the current post.
      *
-     * @param  int  $id The post ID.
+     * @param  int  $id  The post ID.
      * @return array The categories of the current post.
      */
     public function category($id = 0)
@@ -130,7 +130,7 @@ class Loop
     /**
      * Get the tags of the current post.
      *
-     * @param  int  $id The post ID
+     * @param  int  $id  The post ID
      * @return array The tags of the current post.
      */
     public function tags($id = 0)
@@ -143,7 +143,7 @@ class Loop
     /**
      * Get the terms (custom taxonomies) of the current post.
      *
-     * @param  string  $taxonomy The custom taxonomy slug.
+     * @param  string  $taxonomy  The custom taxonomy slug.
      * @param int|\WP_Post The post ID or WP_Post object
      * @param  mixed  $post
      *
@@ -165,8 +165,8 @@ class Loop
     /**
      * Get the date of the current post.
      *
-     * @param  string  $d    Date format.
-     * @param  int|\WP_Post  $post The post ID or WP_Post object
+     * @param  string  $d  Date format.
+     * @param  int|\WP_Post  $post  The post ID or WP_Post object
      * @return string The date of the current post.
      */
     public function date($d = '', $post = null)
@@ -179,8 +179,8 @@ class Loop
      *
      * @author Guriev Eugen
      *
-     * @param  string|array  $class   One or more classes to add to the post class list.
-     * @param  int|\WP_Post  $post_id The post ID or the post object.
+     * @param  string|array  $class  One or more classes to add to the post class list.
+     * @param  int|\WP_Post  $post_id  The post ID or the post object.
      * @return string
      */
     public function postClass($class = '', $post_id = null)
@@ -191,8 +191,8 @@ class Loop
     /**
      * Return the next link html anchor tag for post entries.
      *
-     * @param  string  $label    Link content
-     * @param  int  $max_page Max pages in current query.
+     * @param  string  $label  Link content
+     * @param  int  $max_page  Max pages in current query.
      * @return string
      */
     public function nextPage($label = null, $max_page = 0)
@@ -203,7 +203,7 @@ class Loop
     /**
      * Return the previous link html anchor tag for post entries.
      *
-     * @param  string  $label Link content
+     * @param  string  $label  Link content
      * @return string
      */
     public function previousPage($label = null)

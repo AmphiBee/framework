@@ -3,14 +3,21 @@
 namespace Themosis\Tests\Core;
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\Access\Response;
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Validation\Factory as FactoryContract;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Translation\ArrayLoader;
+use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Themosis\Core\Application;
 use Themosis\Core\Http\FormRequest;
 
 class FormRequestTest extends TestCase
@@ -20,7 +27,7 @@ class FormRequestTest extends TestCase
      */
     protected $mocks = [];
 
-    public function testValidatedMethodReturnsValidatedData()
+    public function test_validated_method_returns_validated_data()
     {
         $request = $this->createRequest(['name' => 'something', 'with' => 'brush']);
 
@@ -29,7 +36,7 @@ class FormRequestTest extends TestCase
         $this->assertEquals(['name' => 'something'], $request->validated());
     }
 
-    public function testValidateThrowsWhenValidationFails()
+    public function test_validate_throws_when_validation_fails()
     {
         $this->expectException(ValidationException::class);
 
@@ -41,14 +48,14 @@ class FormRequestTest extends TestCase
         $request->validateResolved();
     }
 
-    public function testValidateMethodThrowsWhenAuthorizationFails()
+    public function test_validate_method_throws_when_authorization_fails()
     {
         $this->expectException(AuthorizationException::class);
 
         $this->createRequest([], CoreTestFormRequestForbiddenStub::class)->validateResolved();
     }
 
-    public function testPrepareForValidationRunsBeforeValidation()
+    public function test_prepare_for_validation_runs_before_validation()
     {
         $request = $this->createRequest([], CoreTestFormRequestHooks::class);
         $request->validateResolved();
@@ -56,13 +63,60 @@ class FormRequestTest extends TestCase
         $this->assertEquals(['name' => 'Themosis'], $request->validated());
     }
 
+    public function test_validated_method_accepts_key_and_default()
+    {
+        $request = $this->createRequest(['name' => 'something', 'with' => 'brush']);
+
+        $request->validateResolved();
+
+        $this->assertSame('something', $request->validated('name'));
+        $this->assertSame('default', $request->validated('missing', 'default'));
+        $this->assertEquals(['name' => 'something'], $request->safe()->all());
+    }
+
+    public function test_authorize_can_return_authorization_response()
+    {
+        $this->expectException(AuthorizationException::class);
+        $this->expectExceptionMessage('Not allowed.');
+
+        $this->createRequest([], CoreTestFormRequestDenyResponseStub::class)->validateResolved();
+    }
+
+    public function test_after_hooks_are_called()
+    {
+        $this->expectException(ValidationException::class);
+
+        $this->createRequest(['name' => 'Themosis'], CoreTestFormRequestAfterStub::class)->validateResolved();
+    }
+
+    public function test_precognitive_requests_use_themosis_precognition_hook()
+    {
+        $request = $this->createRequest(['name' => 'something']);
+        $request->attributes->set('precognitive', true);
+        $request->headers->set('Precognition-Validate-Only', 'name');
+
+        $previous = Container::getInstance();
+        Container::setInstance(new Application);
+
+        try {
+            $request->validateResolved();
+            $this->fail('A 204 HTTP exception was expected.');
+        } catch (HttpException $e) {
+            $this->assertSame(204, $e->getStatusCode());
+            $this->assertSame('true', $e->getHeaders()['Precognition-Success']);
+        } finally {
+            Container::setInstance($previous);
+        }
+    }
+
     protected function createRequest($payload = [], $class = CoreTestFormRequestStub::class)
     {
-        $container = tap(new Container(), function ($container) {
+        $container = tap(new Container, function ($container) {
             $container->instance(
                 Factory::class,
-                $this->createValidationFactory($container),
+                $factory = $this->createValidationFactory($container),
             );
+            $container->instance(FactoryContract::class, $factory);
         });
 
         $request = $class::create('/', 'GET', $payload);
@@ -74,13 +128,13 @@ class FormRequestTest extends TestCase
     /**
      * Create a validation factory.
      *
-     * @param  \Illuminate\Container\Container  $container
+     * @param  Container  $container
      * @return Factory
      */
     protected function createValidationFactory($container)
     {
-        $translator = new \Illuminate\Translation\Translator(
-            new ArrayLoader(),
+        $translator = new Translator(
+            new ArrayLoader,
             'en_US',
         );
 
@@ -90,14 +144,14 @@ class FormRequestTest extends TestCase
     /**
      * Create a mock redirector.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Routing\Redirector
+     * @param  Request  $request
+     * @return Redirector
      */
     protected function createRedirector($request)
     {
         $redirector = $this->mocks['redirector'] = $this->getMockBuilder(Redirector::class)
             ->setConstructorArgs([$generator = $this->createUrlGenerator()])
-            ->setMethods(['getUrlGenerator', 'to'])
+            ->onlyMethods(['getUrlGenerator', 'to'])
             ->getMock();
 
         $redirector->expects($this->any())->method('getUrlGenerator')->willReturn($generator);
@@ -112,26 +166,26 @@ class FormRequestTest extends TestCase
     /**
      * Create a URL generator.
      *
-     * @return \PHPUnit\Framework\MockObject\MockObject
+     * @return MockObject
      */
     protected function createUrlGenerator()
     {
         return $this->mocks['generator'] = $this->getMockBuilder(UrlGenerator::class)
             ->disableOriginalConstructor()
-            ->setMethods(['previous'])
+            ->onlyMethods(['previous'])
             ->getMock();
     }
 
     /**
      * Create a redirect response.
      *
-     * @return \PHPUnit\Framework\MockObject\MockObject
+     * @return MockObject
      */
     protected function createRedirectResponse()
     {
         return $this->mocks['redirect'] = $this->getMockBuilder(RedirectResponse::class)
             ->disableOriginalConstructor()
-            ->setMethods(['withInput', 'WithErrors'])
+            ->onlyMethods(['withInput', 'withErrors'])
             ->getMock();
     }
 }
@@ -177,5 +231,35 @@ class CoreTestFormRequestHooks extends FormRequest
     public function prepareForValidation()
     {
         $this->replace(['name' => 'Themosis']);
+    }
+}
+
+class CoreTestFormRequestDenyResponseStub extends FormRequest
+{
+    public function rules()
+    {
+        return [];
+    }
+
+    public function authorize()
+    {
+        return Response::deny('Not allowed.');
+    }
+}
+
+class CoreTestFormRequestAfterStub extends FormRequest
+{
+    public function rules()
+    {
+        return ['name' => 'required'];
+    }
+
+    public function after()
+    {
+        return [
+            function ($validator) {
+                $validator->errors()->add('name', 'After hook failed.');
+            },
+        ];
     }
 }

@@ -2,11 +2,7 @@
 
 class AnActionClassForTest
 {
-    public function init()
-    {
-    }
+    public function init() {}
 
-    public function customName()
-    {
-    }
+    public function customName() {}
 }

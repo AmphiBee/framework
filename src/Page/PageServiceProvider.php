@@ -7,13 +7,6 @@ use Illuminate\View\Factory;
 
 class PageServiceProvider extends ServiceProvider
 {
-    /**
-     * Defer page factory.
-     *
-     * @var bool
-     */
-    protected $defer = true;
-
     public function register()
     {
         /** @var Factory $view */

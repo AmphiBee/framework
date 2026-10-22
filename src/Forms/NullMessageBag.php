@@ -3,6 +3,7 @@
 namespace Themosis\Forms;
 
 use Illuminate\Contracts\Support\MessageBag;
+use Illuminate\Contracts\Support\MessageProvider;
 
 class NullMessageBag implements MessageBag
 {
@@ -41,7 +42,7 @@ class NullMessageBag implements MessageBag
     /**
      * {@inheritdoc}
      *
-     * @param  array|\Illuminate\Contracts\Support\MessageProvider  $messages
+     * @param  array|MessageProvider  $messages
      * @return $this|MessageBag
      */
     public function merge($messages)
@@ -163,12 +164,12 @@ class NullMessageBag implements MessageBag
     }
 
     /**
-      * {@inheritdoc}
+     * {@inheritdoc}
      *
      * @return $this|MessageBag
-      */
-     public function forget($key)
-     {
+     */
+    public function forget($key)
+    {
         return $this;
-     }
+    }
 }

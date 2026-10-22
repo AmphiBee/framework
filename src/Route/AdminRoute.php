@@ -2,8 +2,10 @@
 
 namespace Themosis\Route;
 
+use Illuminate\Container\EntryNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Routing\Route;
 use Illuminate\Routing\Router as IlluminateRouter;
 
 class AdminRoute
@@ -27,15 +29,15 @@ class AdminRoute
     /**
      * Return the catch-all WordPress administration route.
      *
-     * @return \Illuminate\Routing\Route
+     * @return Route
      *
-     * @throws \Illuminate\Container\EntryNotFoundException
+     * @throws EntryNotFoundException
      */
     public function get()
     {
         $wordpressUri = trim(config('app.wp.dir', 'cms'), '\/');
         $route = $this->router->any($wordpressUri.'/wp-admin/{any?}', function () {
-            return new Response();
+            return new Response;
         });
 
         $route->middleware('admin');

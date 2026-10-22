@@ -3,6 +3,7 @@
 namespace Themosis\Support\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Themosis\Hook\FilterBuilder;
 use Themosis\Hook\Hook;
 
 /**
@@ -12,7 +13,7 @@ use Themosis\Hook\Hook;
  * @method static Hook|false remove(string $hook, \Closure|string $callback, int $priority = 10)
  * @method static array|null getCallback(string $hook)
  *
- * @see \Themosis\Hook\FilterBuilder
+ * @see FilterBuilder
  */
 class Filter extends Facade
 {

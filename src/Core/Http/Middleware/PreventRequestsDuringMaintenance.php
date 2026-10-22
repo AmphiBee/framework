@@ -10,7 +10,7 @@ class PreventRequestsDuringMaintenance
     /**
      * The application.
      *
-     * @var \Illuminate\Contracts\Foundation\Application
+     * @var Application
      */
     protected $app;
 

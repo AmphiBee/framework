@@ -33,7 +33,7 @@ class UserServiceProvider extends ServiceProvider
             $viewFactory->addLocation(__DIR__.'/views');
 
             return new UserField(
-                new FieldsRepository(),
+                new FieldsRepository,
                 $app['action'],
                 $viewFactory,
                 $app['validator'],

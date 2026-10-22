@@ -2,6 +2,4 @@
 
 namespace Themosis\Forms\Fields\Exceptions;
 
-class NotSupportedFieldException extends \Exception
-{
-}
+class NotSupportedFieldException extends \Exception {}

@@ -3,6 +3,7 @@
 namespace Themosis\Core\Console;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Themosis\Core\Bus\Dispatchable;
 
@@ -30,7 +31,7 @@ class QueueCommand implements ShouldQueue
     /**
      * Handle the job.
      */
-    public function handle(\Illuminate\Contracts\Console\Kernel $kernel)
+    public function handle(Kernel $kernel)
     {
         call_user_func_array([$kernel, 'call'], $this->data);
     }

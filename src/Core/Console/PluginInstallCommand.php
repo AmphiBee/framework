@@ -3,6 +3,7 @@
 namespace Themosis\Core\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -107,7 +108,7 @@ class PluginInstallCommand extends Command
 
         $this->files->copy($this->option('url'), $this->temp);
 
-        if (true !== $this->zip->open($this->temp)) {
+        if ($this->zip->open($this->temp) !== true) {
             $this->error('Cannot open plugin zip file.');
 
             return;
@@ -176,7 +177,7 @@ class PluginInstallCommand extends Command
      * Set the plugin configuration file.
      *
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function setConfigurationFile(string $name, array $headers)
     {
@@ -210,7 +211,7 @@ class PluginInstallCommand extends Command
      * Set the content of default route provider.
      *
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function setProviders(string $name, array $headers)
     {
@@ -227,7 +228,7 @@ class PluginInstallCommand extends Command
      *
      * @param  string  $path
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function replaceFileContent($path, array $headers)
     {

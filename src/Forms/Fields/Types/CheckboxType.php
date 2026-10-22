@@ -37,12 +37,12 @@ class CheckboxType extends BaseType implements CanHandleMetabox, CanHandlePageSe
      */
     protected function parseOptions(array $options): array
     {
-        $this->setTransformer(new StringToBooleanTransformer());
+        $this->setTransformer(new StringToBooleanTransformer);
 
         $options = parent::parseOptions($options);
 
         // Set some default CSS classes if chosen theme is "bootstrap".
-        if (isset($options['theme']) && 'bootstrap' === $options['theme']) {
+        if (isset($options['theme']) && $options['theme'] === 'bootstrap') {
             $options['attributes']['class'] = isset($options['attributes']['class']) ?
                 'form-check-input '.$options['attributes']['class'] : 'form-check-input';
             $options['label_attr']['class'] = isset($options['label_attr']['class']) ?
@@ -66,7 +66,7 @@ class CheckboxType extends BaseType implements CanHandleMetabox, CanHandlePageSe
             // or when the option "flush" is set to "false".
             // If true, let's automatically add the "checked" attribute.
             $this->options['attributes']['checked'] = 'checked';
-        } elseif (false === $this->getValue() && isset($this->options['attributes']['checked'])) {
+        } elseif ($this->getValue() === false && isset($this->options['attributes']['checked'])) {
             unset($this->options['attributes']['checked']);
         }
 

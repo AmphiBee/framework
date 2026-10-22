@@ -21,10 +21,8 @@ interface FieldTypeInterface
 
     /**
      * Return field options.
-     *
-     * @param  array  $excludes
      */
-    public function getOptions(array $excludes = null): array;
+    public function getOptions(?array $excludes = null): array;
 
     /**
      * Get field type option defined by key.
@@ -65,7 +63,7 @@ interface FieldTypeInterface
     /**
      * Get the value of a defined attribute.
      *
-     * @param  string  $name The attribute name.
+     * @param  string  $name  The attribute name.
      * @return mixed
      */
     public function getAttribute(string $name);
@@ -81,7 +79,7 @@ interface FieldTypeInterface
     /**
      * Add an attribute to the field.
      *
-     * @param  bool  $overwrite By default, it appends the value. Set to true, to replace the existing attribute value.
+     * @param  bool  $overwrite  By default, it appends the value. Set to true, to replace the existing attribute value.
      */
     public function addAttribute(string $name, string $value, $overwrite = false): FieldTypeInterface;
 

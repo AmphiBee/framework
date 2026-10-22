@@ -2,6 +2,4 @@
 
 namespace Themosis\User\Exceptions;
 
-class UserException extends \Exception
-{
-}
+class UserException extends \Exception {}

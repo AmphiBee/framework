@@ -3,6 +3,7 @@
 namespace Themosis\Hook;
 
 use BadMethodCallException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Str;
 
@@ -32,10 +33,10 @@ abstract class Hook implements IHook
      * Wrapper of the "add_action" or "add_filter" functions. Allows
      * a developer to specify a controller class or closure.
      *
-     * @param  string|array  $hooks         The action hook name.
-     * @param  \Closure|string|array  $callback      The action hook callback instance.
-     * @param  int  $priority      The priority order for this action.
-     * @param  int  $accepted_args Default number of accepted arguments.
+     * @param  string|array  $hooks  The action hook name.
+     * @param  \Closure|string|array  $callback  The action hook callback instance.
+     * @param  int  $priority  The priority order for this action.
+     * @param  int  $accepted_args  Default number of accepted arguments.
      * @return $this
      *
      * @throws BadMethodCallException
@@ -91,7 +92,7 @@ abstract class Hook implements IHook
     /**
      * Return the callback registered with the hook.
      *
-     * @param  string  $hook The hook name.
+     * @param  string  $hook  The hook name.
      * @return array|null
      */
     public function getCallback($hook)
@@ -118,10 +119,10 @@ abstract class Hook implements IHook
     /**
      * Add an event for the specified hook.
      *
-     * @param  string  $hook          The hook name.
-     * @param  \Closure|string|array  $callback      The hook callback instance.
-     * @param  int  $priority      The priority order.
-     * @param  int  $accepted_args The default number of accepted arguments.
+     * @param  string  $hook  The hook name.
+     * @param  \Closure|string|array  $callback  The hook callback instance.
+     * @param  int  $priority  The priority order.
+     * @param  int  $accepted_args  The default number of accepted arguments.
      * @return \Closure|array|string
      *
      * @throws BadMethodCallException
@@ -132,7 +133,7 @@ abstract class Hook implements IHook
         if ($callback instanceof \Closure || is_array($callback)) {
             $this->addEventListener($hook, $callback, $priority, $accepted_args);
         } elseif (is_string($callback)) {
-            if (false !== strpos($callback, '@') || class_exists($callback)) {
+            if (strpos($callback, '@') !== false || class_exists($callback)) {
                 // Return the class responsible to handle the action.
                 $callback = $this->addClassEvent($hook, $callback, $priority, $accepted_args);
             } else {
@@ -171,7 +172,7 @@ abstract class Hook implements IHook
      * @param  string  $hook
      * @return array
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     protected function buildClassEventCallback($class, $hook)
     {

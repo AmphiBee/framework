@@ -71,28 +71,43 @@ class KeyGenerateCommand extends Command
     {
         $currentKey = $this->laravel['config']['app.key'];
 
-        if (0 !== strlen($currentKey) && (! $this->confirmToProceed())) {
+        if (strlen((string) $currentKey) !== 0 && (! $this->confirmToProceed())) {
             return false;
         }
 
-        $this->writeNewEnvironmentFileWith($key);
+        if (! $this->writeNewEnvironmentFileWith($key)) {
+            return false;
+        }
 
         return true;
     }
 
     /**
      * Write new environment file with the given key.
+     *
+     * @return bool
      */
     protected function writeNewEnvironmentFileWith(string $key)
     {
-        file_put_contents(
-            $this->laravel->environmentFilePath(),
-            preg_replace(
-                $this->keyReplacementPattern(),
-                'APP_KEY='.$key,
-                file_get_contents($this->laravel->environmentFilePath()),
-            ),
+        $replaced = preg_replace(
+            $this->keyReplacementPattern(),
+            'APP_KEY='.$key,
+            $input = file_get_contents($this->laravel->environmentFilePath()),
         );
+
+        if ($replaced === $input || $replaced === null) {
+            if (isset($_ENV['APP_KEY'])) {
+                $this->error('Unable to set application key. APP_KEY is already present in the environment.');
+            } else {
+                $this->error('Unable to set application key. No APP_KEY variable was found in the .env file.');
+            }
+
+            return false;
+        }
+
+        file_put_contents($this->laravel->environmentFilePath(), $replaced);
+
+        return true;
     }
 
     /**

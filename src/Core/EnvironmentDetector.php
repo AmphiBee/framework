@@ -3,8 +3,6 @@
 namespace Themosis\Core;
 
 use Closure;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 class EnvironmentDetector
 {
@@ -43,7 +41,7 @@ class EnvironmentDetector
     protected function detectConsoleEnvironment(Closure $callback, array $args)
     {
         if (! is_null($value = $this->getEnvironmentArgument($args))) {
-            return head(array_slice(explode('=', $value), 1));
+            return $value;
         }
 
         return $this->detectWebEnvironment($callback);
@@ -57,8 +55,16 @@ class EnvironmentDetector
      */
     protected function getEnvironmentArgument(array $args)
     {
-        return Arr::first($args, function ($value) {
-            return Str::startsWith($value, '--env');
-        });
+        foreach ($args as $i => $value) {
+            if ($value === '--env') {
+                return $args[$i + 1] ?? null;
+            }
+
+            if (str_starts_with($value, '--env=')) {
+                return head(array_slice(explode('=', $value), 1));
+            }
+        }
+
+        return null;
     }
 }

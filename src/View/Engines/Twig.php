@@ -5,11 +5,14 @@ namespace Themosis\View\Engines;
 use Illuminate\Contracts\View\Engine;
 use Themosis\View\FileViewFinder;
 use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class Twig implements Engine
 {
     /**
-     * @var \Twig_Environment
+     * @var Environment
      */
     protected $twig;
 
@@ -32,13 +35,13 @@ class Twig implements Engine
     /**
      * Get the evaluated contents of the view.
      *
-     * @param  string  $path The file name with its file extension.
-     * @param  array  $data View data (context)
+     * @param  string  $path  The file name with its file extension.
+     * @param  array  $data  View data (context)
      * @return string
      *
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function get($path, array $data = [])
     {

@@ -1,0 +1,8 @@
+{
+    "preset": "laravel",
+    "exclude": [
+        "dist",
+        "resources",
+        "tests/htdocs"
+    ]
+}

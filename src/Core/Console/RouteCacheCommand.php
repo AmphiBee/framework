@@ -3,6 +3,8 @@
 namespace Themosis\Core\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Routing\RouteCollection;
 use Themosis\Core\Application;
@@ -45,7 +47,7 @@ class RouteCacheCommand extends Command
 
         $routes = $this->getFreshApplicationRoutes();
 
-        if (0 == count($routes)) {
+        if (count($routes) == 0) {
             $this->error('Your application does not have any routes.');
 
             return;
@@ -86,7 +88,7 @@ class RouteCacheCommand extends Command
     protected function getFreshApplication()
     {
         return tap(require $this->laravel->bootstrapPath('app.php'), function ($app) {
-            $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+            $app->make(Kernel::class)->bootstrap();
         });
     }
 
@@ -96,7 +98,7 @@ class RouteCacheCommand extends Command
      *
      * @return string
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function buildRouteCacheFile(RouteCollection $routes)
     {

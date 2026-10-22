@@ -54,7 +54,7 @@ class PageFactory implements PageFactoryInterface
             ->setLayout('default')
             ->setView('page');
 
-        $page = new Page($this->action, $this->filter, $view, new PageSettingsRepository(), $this->validator);
+        $page = new Page($this->action, $this->filter, $view, new PageSettingsRepository, $this->validator);
         $page->setSlug($slug)
             ->setTitle($title)
             ->setMenu($title);
