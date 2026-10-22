@@ -4,23 +4,24 @@ namespace Themosis\Core\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Exceptions\PostTooLargeException;
+use Illuminate\Http\Request;
 
 class ValidatePostSize
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return mixed
      *
-     * @throws \Illuminate\Http\Exceptions\PostTooLargeException
+     * @throws PostTooLargeException
      */
     public function handle($request, Closure $next)
     {
         $max = $this->getPostMaxSize();
 
         if ($max > 0 && $request->server('CONTENT_LENGTH') > $max) {
-            throw new PostTooLargeException();
+            throw new PostTooLargeException;
         }
 
         return $next($request);

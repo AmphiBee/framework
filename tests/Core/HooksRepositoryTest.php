@@ -3,14 +3,15 @@
 namespace Themosis\Tests\Core;
 
 use PHPUnit\Framework\TestCase;
+use Themosis\Core\Application;
 use Themosis\Core\HooksRepository;
 use Themosis\Hook\Hookable;
 
 class HooksRepositoryTest extends TestCase
 {
-    public function testHookablesClassesAreRegistered()
+    public function test_hookables_classes_are_registered()
     {
-        $app = $this->getMockBuilder(\Themosis\Core\Application::class)
+        $app = $this->getMockBuilder(Application::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -19,14 +20,12 @@ class HooksRepositoryTest extends TestCase
 
         (new HooksRepository($app))->load([
             'Some\Namespace\Hookable',
-            \Themosis\Tests\Core\MyActions::class,
+            MyActions::class,
         ]);
     }
 }
 
 class MyActions extends Hookable
 {
-    public function register()
-    {
-    }
+    public function register() {}
 }

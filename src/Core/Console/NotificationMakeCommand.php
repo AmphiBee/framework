@@ -3,6 +3,7 @@
 namespace Themosis\Core\Console;
 
 use Illuminate\Console\GeneratorCommand;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Symfony\Component\Console\Input\InputOption;
 
 class NotificationMakeCommand extends GeneratorCommand
@@ -33,7 +34,7 @@ class NotificationMakeCommand extends GeneratorCommand
      *
      * @return bool|void|null
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function handle()
     {
@@ -66,7 +67,7 @@ class NotificationMakeCommand extends GeneratorCommand
      * @param  string  $name
      * @return string|string[]
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function buildClass($name)
     {

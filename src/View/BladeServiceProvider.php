@@ -13,7 +13,7 @@ class BladeServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind('loop', function () {
-            return new Loop();
+            return new Loop;
         });
     }
 
@@ -115,7 +115,7 @@ class BladeServiceProvider extends ServiceProvider
             }
 
             // Set the view data if defined.
-            $data = 3 === count($args) ? array_pop($args) : '[]';
+            $data = count($args) === 3 ? array_pop($args) : '[]';
 
             return "<?php if (\$__env->exists('{$path}')) { echo \$__env->make('{$path}', {$data}, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); } else { echo \$__env->make('{$args[0]}', {$data}, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); } ?>";
         });

@@ -11,7 +11,7 @@ use Themosis\Forms\Resources\Transformers\CollectionFieldTransformer;
 /**
  * Class CollectionType
  */
-class CollectionType extends BaseType implements DataTransformerInterface, CanHandleMetabox, CanHandlePageSettings
+class CollectionType extends BaseType implements CanHandleMetabox, CanHandlePageSettings, DataTransformerInterface
 {
     /**
      * Field type.

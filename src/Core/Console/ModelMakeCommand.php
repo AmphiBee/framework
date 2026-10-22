@@ -3,6 +3,7 @@
 namespace Themosis\Core\Console;
 
 use Illuminate\Console\GeneratorCommand;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -151,7 +152,7 @@ class ModelMakeCommand extends GeneratorCommand
      * @param  string  $rootNamespace
      * @return string
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     protected function getDefaultNamespace($rootNamespace)
     {

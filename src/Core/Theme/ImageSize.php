@@ -75,7 +75,7 @@ class ImageSize
             case 4:
             default:
                 // All properties with custom label.
-                $label = (is_bool($properties[3]) && true === $properties[3]) ? $this->label($slug) : $properties[3];
+                $label = (is_bool($properties[3]) && $properties[3] === true) ? $this->label($slug) : $properties[3];
 
                 return [$properties[0], $properties[1], $properties[2], $label];
         }

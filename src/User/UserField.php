@@ -100,9 +100,9 @@ class UserField implements UserFieldContract
     /**
      * Add a user field.
      *
-     * @param  \Themosis\Forms\Contracts\FieldTypeInterface|SectionInterface  $field
+     * @param  FieldTypeInterface|SectionInterface  $field
      */
-    public function add($field, SectionInterface $section = null): UserFieldContract
+    public function add($field, ?SectionInterface $section = null): UserFieldContract
     {
         if ($field instanceof SectionInterface) {
             $section = $field;

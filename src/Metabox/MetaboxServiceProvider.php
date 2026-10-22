@@ -30,9 +30,9 @@ class MetaboxServiceProvider extends ServiceProvider
     {
         $this->app->bind('metabox', function ($app) {
             $resource = new MetaboxResource(
-                $app->bound('league.fractal') ? $app['league.fractal'] : new Manager(),
-                new ArraySerializer(),
-                new MetaboxTransformer(),
+                $app->bound('league.fractal') ? $app['league.fractal'] : new Manager,
+                new ArraySerializer,
+                new MetaboxTransformer,
             );
 
             return new Factory($app, $app['action'], $app['filter'], $resource);

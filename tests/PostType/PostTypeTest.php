@@ -20,10 +20,10 @@ class PostTypeTest extends TestCase
             return $this->application;
         }
 
-        $this->application = new Application();
+        $this->application = new Application;
 
         $this->application->bind('config', function () {
-            $config = new Repository();
+            $config = new Repository;
             $config->set('app.locale', 'en_US');
 
             return $config;
@@ -43,7 +43,7 @@ class PostTypeTest extends TestCase
         );
     }
 
-    public function testCreatePostTypeWithDefaults()
+    public function test_create_post_type_with_defaults()
     {
         $factory = $this->getFactory();
         $postType = $factory->make('book', 'Books', 'Book');
@@ -58,7 +58,7 @@ class PostTypeTest extends TestCase
         $this->assertTrue($postType->getArgument('has_archive'));
     }
 
-    public function testCreatePostTypeWithCustomArgs()
+    public function test_create_post_type_with_custom_args()
     {
         $factory = $this->getFactory();
         $postType = $factory->make('product', 'Products', 'Product')
@@ -80,7 +80,7 @@ class PostTypeTest extends TestCase
         $this->assertEquals('View Product', $postType->getLabel('view_item'));
     }
 
-    public function testPostTypeExists()
+    public function test_post_type_exists()
     {
         $factory = $this->getFactory();
 
@@ -90,7 +90,7 @@ class PostTypeTest extends TestCase
         $this->assertFalse($factory->exists('non-existent-post-type'));
     }
 
-    public function testGetPostType()
+    public function test_get_post_type()
     {
         $factory = $this->getFactory();
 

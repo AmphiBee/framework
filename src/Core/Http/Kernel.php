@@ -4,11 +4,21 @@ namespace Themosis\Core\Http;
 
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response as IlluminateResponse;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Pipeline;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Facade;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\HttpFoundation\Response;
+use Themosis\Core\Bootstrap\BootProviders;
+use Themosis\Core\Bootstrap\ConfigurationLoader;
+use Themosis\Core\Bootstrap\EnvironmentLoader;
+use Themosis\Core\Bootstrap\ExceptionHandler;
+use Themosis\Core\Bootstrap\RegisterFacades;
+use Themosis\Core\Bootstrap\RegisterProviders;
 use Themosis\Core\Exceptions\Handler;
 use Themosis\Core\Http\Events\RequestHandled;
 use Themosis\Route\Router;
@@ -32,12 +42,12 @@ class Kernel implements \Illuminate\Contracts\Http\Kernel
      * @var array
      */
     protected $bootstrappers = [
-        \Themosis\Core\Bootstrap\EnvironmentLoader::class,
-        \Themosis\Core\Bootstrap\ConfigurationLoader::class,
-        \Themosis\Core\Bootstrap\ExceptionHandler::class,
-        \Themosis\Core\Bootstrap\RegisterFacades::class,
-        \Themosis\Core\Bootstrap\RegisterProviders::class,
-        \Themosis\Core\Bootstrap\BootProviders::class,
+        EnvironmentLoader::class,
+        ConfigurationLoader::class,
+        ExceptionHandler::class,
+        RegisterFacades::class,
+        RegisterProviders::class,
+        BootProviders::class,
     ];
 
     /**
@@ -67,9 +77,9 @@ class Kernel implements \Illuminate\Contracts\Http\Kernel
      * @var array
      */
     protected $middlewarePriority = [
-        \Illuminate\Session\Middleware\StartSession::class,
-        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        StartSession::class,
+        ShareErrorsFromSession::class,
+        SubstituteBindings::class,
     ];
 
     public function __construct(Application $app, Router $router)
@@ -91,7 +101,7 @@ class Kernel implements \Illuminate\Contracts\Http\Kernel
     /**
      * Initialize the kernel (bootstrap application base components).
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      */
     public function init($request)
     {
@@ -103,7 +113,7 @@ class Kernel implements \Illuminate\Contracts\Http\Kernel
     /**
      * Handle an incoming HTTP request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return IlluminateResponse
      */
     public function handle($request)
@@ -140,7 +150,7 @@ class Kernel implements \Illuminate\Contracts\Http\Kernel
     /**
      * Send given request through the middleware (if any) and router.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return IlluminateResponse
      */
     protected function sendRequestThroughRouter($request)
@@ -201,8 +211,8 @@ class Kernel implements \Illuminate\Contracts\Http\Kernel
     /**
      * Call the terminate method on any terminable middleware.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Http\Response  $response
+     * @param  Request  $request
+     * @param  IlluminateResponse  $response
      */
     protected function terminateMiddleware($request, $response)
     {
@@ -229,7 +239,7 @@ class Kernel implements \Illuminate\Contracts\Http\Kernel
     /**
      * Gather the route middleware for the given request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array
      */
     protected function gatherRouteMiddleware($request)
@@ -329,7 +339,7 @@ class Kernel implements \Illuminate\Contracts\Http\Kernel
     /**
      * Render the exception to a response.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return Response
      */
     protected function renderException($request, Exception $e)

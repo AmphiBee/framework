@@ -4,6 +4,7 @@ namespace Themosis\Taxonomy;
 
 use Illuminate\Http\Request;
 use Illuminate\Validation\Validator;
+use Illuminate\View\Factory;
 use Themosis\Forms\Contracts\FieldTypeInterface;
 use Themosis\Forms\Fields\Contracts\CanHandleTerms;
 use Themosis\Forms\Fields\Types\BaseType;
@@ -18,7 +19,7 @@ class TaxonomyField
     protected $repository;
 
     /**
-     * @var \Illuminate\View\Factory
+     * @var Factory
      */
     protected $factory;
 
@@ -45,7 +46,7 @@ class TaxonomyField
     public function __construct(
         TaxonomyInterface $taxonomy,
         TaxonomyFieldRepository $repository,
-        \Illuminate\View\Factory $factory,
+        Factory $factory,
         \Illuminate\Contracts\Validation\Factory $validator,
         IHook $action,
         array $options,
@@ -80,7 +81,7 @@ class TaxonomyField
     public function set()
     {
         // Register term meta on Rest API.
-        if (function_exists('current_filter') && 'init' === current_filter()) {
+        if (function_exists('current_filter') && current_filter() === 'init') {
             call_user_func($this->register());
         } else {
             $this->action->add('init', $this->register());

@@ -4,6 +4,7 @@ namespace Themosis\Auth\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\DetectsApplicationNamespace;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 
 class AuthMakeCommand extends Command
@@ -186,7 +187,7 @@ class AuthMakeCommand extends Command
      *
      * @return string
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function compileStub(string $content)
     {

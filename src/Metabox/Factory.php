@@ -51,7 +51,7 @@ class Factory
      */
     public function make(string $id, $screen = 'post'): MetaboxInterface
     {
-        $metabox = (new Metabox($id, $this->action, $this->filter, new FieldsRepository()))
+        $metabox = (new Metabox($id, $this->action, $this->filter, new FieldsRepository))
             ->setContainer($this->container)
             ->setTitle($this->setDefaultTitle($id))
             ->setScreen($screen)

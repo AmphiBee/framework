@@ -212,11 +212,11 @@ class Asset implements AssetInterface
 
         // If no argument is passed but we have its type
         // then let's define some defaults.
-        if ('style' === $this->getType()) {
+        if ($this->getType() === 'style') {
             $this->argument = 'all';
         }
 
-        if ('script' === $this->getType()) {
+        if ($this->getType() === 'script') {
             $this->argument = true;
         }
 
@@ -262,7 +262,7 @@ class Asset implements AssetInterface
             throw new AssetException('The asset must have a type defined. Null given.');
         }
 
-        if ('script' === $this->getType()) {
+        if ($this->getType() === 'script') {
             $this->enqueueScript();
         } else {
             $this->enqueueStyle();
@@ -350,7 +350,7 @@ class Asset implements AssetInterface
             throw new AssetException('The asset must have a type.');
         }
 
-        $hook = 'script' === $this->getType() ? 'script_loader_tag' : 'style_loader_tag';
+        $hook = $this->getType() === 'script' ? 'script_loader_tag' : 'style_loader_tag';
         $key = strtolower(trim($this->getHandle()));
         $attributes = $this->html->attributes($attributes);
 

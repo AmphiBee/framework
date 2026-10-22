@@ -8,7 +8,7 @@ use Themosis\Core\ProviderRepository;
 
 class ProviderRepositoryTest extends TestCase
 {
-    public function testServicesAreRegisteredWhenManifestIsNotRecompiled()
+    public function test_services_are_registered_when_manifest_is_not_recompiled()
     {
         $app = $this->getMockBuilder('Themosis\Core\Application')
             ->setMethods(['register', 'addDeferredServices', 'runningInConsole'])
@@ -44,7 +44,7 @@ class ProviderRepositoryTest extends TestCase
         $repository->load([]);
     }
 
-    public function testManifestIsProperlyRecompiled()
+    public function test_manifest_is_properly_recompiled()
     {
         $app = $this->getMockBuilder('Themosis\Core\Application')
             ->setMethods(['register', 'addDeferredServices', 'runningInConsole'])
@@ -90,7 +90,7 @@ class ProviderRepositoryTest extends TestCase
                 ->setMethods(['isDeferred'])
                 ->getMock());*/
 
-        //$app->expects($this->once())->method('register')->with('bar');
+        // $app->expects($this->once())->method('register')->with('bar');
 
         $app->expects($this->any())->method('runningInConsole')->willReturn(false);
         $app->expects($this->once())->method('addDeferredServices')->with([
@@ -101,10 +101,10 @@ class ProviderRepositoryTest extends TestCase
         $repository->load(['foo']);
     }
 
-    public function testShouldRecompileReturnsCorrectValue()
+    public function test_should_recompile_returns_correct_value()
     {
         $repo = new ProviderRepository(
-            new Application(),
+            new Application,
             $this->getMockBuilder('Illuminate\Filesystem\Filesystem')->getMock(),
             __DIR__.'/services.php',
         );
@@ -114,10 +114,10 @@ class ProviderRepositoryTest extends TestCase
         $this->assertFalse($repo->shouldRecompile(['providers' => ['foo']], ['foo']));
     }
 
-    public function testLoadManifestReturnsParsedJSON()
+    public function test_load_manifest_returns_parsed_json()
     {
         $repo = new ProviderRepository(
-            new Application(),
+            new Application,
             $files = $this->getMockBuilder('Illuminate\Filesystem\Filesystem')
                 ->setMethods(['exists', 'getRequire'])
                 ->getMock(),
@@ -136,10 +136,10 @@ class ProviderRepositoryTest extends TestCase
         $this->assertEquals($array, $repo->loadManifest());
     }
 
-    public function testWriteManifestStoresToProperLocation()
+    public function test_write_manifest_stores_to_proper_location()
     {
         $repo = new ProviderRepository(
-            new Application(),
+            new Application,
             $files = $this->getMockBuilder('Illuminate\Filesystem\Filesystem')
                 ->setMethods(['put'])
                 ->getMock(),

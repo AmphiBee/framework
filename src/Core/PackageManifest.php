@@ -3,6 +3,7 @@
 namespace Themosis\Core;
 
 use Exception;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 
 class PackageManifest
@@ -45,7 +46,7 @@ class PackageManifest
      *
      * @return array
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function aliases()
     {
@@ -57,7 +58,7 @@ class PackageManifest
      *
      * @return array
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function providers()
     {
@@ -70,7 +71,7 @@ class PackageManifest
      * @param  string  $key
      * @return array
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function get($key = 'aliases')
     {
@@ -84,7 +85,7 @@ class PackageManifest
      *
      * @return array
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function getManifest()
     {

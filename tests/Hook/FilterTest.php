@@ -11,12 +11,12 @@ class FilterTest extends TestCase
      */
     protected $app;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        $this->app = new Application();
+        $this->app = new Application;
     }
 
-    public function testFilterWithClosure()
+    public function test_filter_with_closure()
     {
         $filter = $this->getMockBuilder(FilterBuilder::class)
             ->setConstructorArgs([$this->app])
@@ -26,8 +26,7 @@ class FilterTest extends TestCase
         $filter->expects($this->once())
             ->method('addFilter');
 
-        $filter->add('filter-one', function () {
-        });
+        $filter->add('filter-one', function () {});
 
         // Check if filter is registered.
         $this->assertTrue($filter->exists('filter-one'));
@@ -42,7 +41,7 @@ class FilterTest extends TestCase
         $this->assertEquals(3, $filter->getCallback('filter-one')[2]);
     }
 
-    public function testFilterWithClass()
+    public function test_filter_with_class()
     {
         $filter = $this->getMockBuilder(FilterBuilder::class)
             ->setConstructorArgs([$this->app])
@@ -60,7 +59,7 @@ class FilterTest extends TestCase
         // Check the attached callback is an array with instance of AFilterClassForTest.
         // In this test, we also test the hyphen are converted into an underscore
         // for language compatibility.
-        $class = new AFilterClassForTest();
+        $class = new AFilterClassForTest;
         $callback = $filter->getCallback('custom-filter')[0]; // array [instance, 'method']
 
         // Check if method name has been converted with an underscore.
@@ -85,7 +84,7 @@ class FilterTest extends TestCase
         $this->assertEquals([$class, 'awesomeFilter'], $filter->getCallback('another-filter')[0]);
     }
 
-    public function testFilterWithNamedCallback()
+    public function test_filter_with_named_callback()
     {
         $filter = $this->getMockBuilder(FilterBuilder::class)
             ->setConstructorArgs([$this->app])
@@ -104,7 +103,7 @@ class FilterTest extends TestCase
         $this->assertTrue(is_callable($filter->getCallback('uncharted')[0]));
     }
 
-    public function testFilterCanListenToMultipleHooks()
+    public function test_filter_can_listen_to_multiple_hooks()
     {
         $filter = $this->getMockBuilder(FilterBuilder::class)
             ->setConstructorArgs([$this->app])

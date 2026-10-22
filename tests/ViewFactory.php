@@ -9,6 +9,7 @@ use Illuminate\View\Engines\CompilerEngine;
 use Illuminate\View\Engines\EngineResolver;
 use Illuminate\View\Engines\PhpEngine;
 use Illuminate\View\Factory;
+use Themosis\Core\Application;
 use Themosis\View\FileViewFinder;
 
 trait ViewFactory
@@ -21,7 +22,7 @@ trait ViewFactory
     /**
      * Return a View factory instance.
      *
-     * @param  \Themosis\Core\Application  $app
+     * @param  Application  $app
      * @param  array  $paths
      * @return Factory
      */
@@ -31,7 +32,7 @@ trait ViewFactory
             return $this->viewFactory;
         }
 
-        $filesystem = new Filesystem();
+        $filesystem = new Filesystem;
 
         $bladeCompiler = new BladeCompiler(
             $filesystem,
@@ -40,10 +41,10 @@ trait ViewFactory
 
         $app->instance('blade', $bladeCompiler);
 
-        $resolver = new EngineResolver();
+        $resolver = new EngineResolver;
 
         $resolver->register('php', function () {
-            return new PhpEngine();
+            return new PhpEngine;
         });
 
         $resolver->register('blade', function () use ($bladeCompiler) {

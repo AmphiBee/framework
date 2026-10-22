@@ -58,7 +58,7 @@ class ViewServiceProvider extends IlluminateViewServiceProvider
             );
 
             // Add Twig Debug Extension
-            $twig->addExtension(new DebugExtension());
+            $twig->addExtension(new DebugExtension);
 
             // Enable debug.
             if ($app['config']['app.debug']) {
@@ -66,7 +66,7 @@ class ViewServiceProvider extends IlluminateViewServiceProvider
             }
 
             // Add WordPress helpers extension.
-            $twig->addExtension(new WordPress());
+            $twig->addExtension(new WordPress);
 
             return $twig;
         });

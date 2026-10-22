@@ -18,7 +18,7 @@ interface UserFieldContract
      *
      * @param  FieldTypeInterface|SectionInterface  $field
      */
-    public function add($field, SectionInterface $section = null): UserFieldContract;
+    public function add($field, ?SectionInterface $section = null): UserFieldContract;
 
     /**
      * Set the user fields.

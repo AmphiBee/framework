@@ -3,6 +3,7 @@
 namespace Themosis\Core\Console;
 
 use Illuminate\Console\GeneratorCommand;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -35,7 +36,7 @@ class PolicyMakeCommand extends GeneratorCommand
      * @param  string  $name
      * @return string|void
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function buildClass($name)
     {

@@ -3,6 +3,7 @@
 namespace Themosis\Core\Cache;
 
 use Illuminate\Contracts\Cache\Repository;
+use Psr\SimpleCache\InvalidArgumentException;
 
 class WordPressCacheWrapper
 {
@@ -111,7 +112,7 @@ class WordPressCacheWrapper
      * @param  null  $found
      * @return bool|mixed False on failure. Cache value on success.
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function get($key, $group = 'default', $force = false, &$found = null)
     {
@@ -143,7 +144,7 @@ class WordPressCacheWrapper
      * @param  int  $expire
      * @return bool
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function set($key, $data, $group = 'default', $expire = 0)
     {
@@ -168,7 +169,7 @@ class WordPressCacheWrapper
      * @param  string  $group
      * @param  int  $expire
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function add($key, $data, $group = 'default', $expire = 0): bool
     {
@@ -205,7 +206,7 @@ class WordPressCacheWrapper
      * @param  string  $group
      * @return bool|int
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function decrement($key, $offset = 1, $group = 'default')
     {
@@ -234,7 +235,7 @@ class WordPressCacheWrapper
      * @param  string  $group
      * @return bool|int
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function increment($key, $offset = 1, $group = 'default')
     {
@@ -262,7 +263,7 @@ class WordPressCacheWrapper
      * @param  string  $group
      * @return bool
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function delete($key, $group = 'default')
     {
@@ -288,7 +289,7 @@ class WordPressCacheWrapper
      * @param  int  $expire
      * @return bool
      *
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function replace($key, $data, $group = 'default', $expire = 0)
     {

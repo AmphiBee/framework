@@ -2,6 +2,4 @@
 
 namespace Themosis\Taxonomy\Exceptions;
 
-class TaxonomyFieldNotFoundException extends \Exception
-{
-}
+class TaxonomyFieldNotFoundException extends \Exception {}

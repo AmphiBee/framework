@@ -9,6 +9,8 @@ use Illuminate\Contracts\View\Factory as ViewFactoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Factory;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Validator;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
 use League\Fractal\Resource\ResourceInterface;
@@ -26,7 +28,7 @@ use Themosis\Support\Contracts\SectionInterface;
 /**
  * Class Form
  */
-class Form extends HtmlBuilder implements FormInterface, FieldTypeInterface
+class Form extends HtmlBuilder implements FieldTypeInterface, FormInterface
 {
     use FormHelper;
 
@@ -65,7 +67,7 @@ class Form extends HtmlBuilder implements FormInterface, FieldTypeInterface
     protected $validation;
 
     /**
-     * @var \Illuminate\Validation\Validator
+     * @var Validator
      */
     protected $validator;
 
@@ -271,7 +273,7 @@ class Form extends HtmlBuilder implements FormInterface, FieldTypeInterface
      *
      * @return $this
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function handleRequest(Request $request): FormInterface
     {
@@ -330,7 +332,7 @@ class Form extends HtmlBuilder implements FormInterface, FieldTypeInterface
     /**
      * Get the list of form rules.
      *
-     * @param  array  $fields The form fields instances.
+     * @param  array  $fields  The form fields instances.
      * @return array
      */
     protected function getFormRules(array $fields)
@@ -348,7 +350,7 @@ class Form extends HtmlBuilder implements FormInterface, FieldTypeInterface
     /**
      * Get the list of form fields messages.
      *
-     * @param  array  $fields The form fields instances.
+     * @param  array  $fields  The form fields instances.
      * @return array
      */
     protected function getFormMessages(array $fields)
@@ -371,7 +373,7 @@ class Form extends HtmlBuilder implements FormInterface, FieldTypeInterface
     /**
      * Get the list of custom :attribute placeholders values.
      *
-     * @param  array  $fields The form fields instances.
+     * @param  array  $fields  The form fields instances.
      * @return array
      */
     protected function getFormPlaceholders(array $fields)
@@ -412,7 +414,7 @@ class Form extends HtmlBuilder implements FormInterface, FieldTypeInterface
     public function errors(): MessageBag
     {
         if (is_null($this->validator)) {
-            return new NullMessageBag();
+            return new NullMessageBag;
         }
 
         return $this->validator->errors();
@@ -602,7 +604,7 @@ class Form extends HtmlBuilder implements FormInterface, FieldTypeInterface
         $options['attributes'] = array_merge($this->getAttributes(), $options['attributes']);
 
         // Define nonce default values if "method" attribute is set to "post".
-        if (isset($options['attributes']['method']) && 'post' === strtolower($options['attributes']['method'])) {
+        if (isset($options['attributes']['method']) && strtolower($options['attributes']['method']) === 'post') {
             $options['nonce'] = $options['nonce'] ?? '_themosisnonce';
             $options['nonce_action'] = $options['nonce_action'] ?? 'form';
             $options['referer'] = $options['referer'] ?? true;
@@ -619,10 +621,8 @@ class Form extends HtmlBuilder implements FormInterface, FieldTypeInterface
 
     /**
      * Return form options.
-     *
-     * @param  array  $excludes
      */
-    public function getOptions(array $excludes = null): array
+    public function getOptions(?array $excludes = null): array
     {
         if (! is_null($excludes)) {
             return array_filter($this->options, function ($key) use ($excludes) {
@@ -673,7 +673,7 @@ class Form extends HtmlBuilder implements FormInterface, FieldTypeInterface
     /**
      * Get the value of a defined attribute.
      *
-     * @param  string  $name The attribute name.
+     * @param  string  $name  The attribute name.
      * @return mixed
      */
     public function getAttribute(string $name)
@@ -842,7 +842,7 @@ class Form extends HtmlBuilder implements FormInterface, FieldTypeInterface
      */
     protected function serialize(): Form
     {
-        $this->manager->setSerializer(new ArraySerializer());
+        $this->manager->setSerializer(new ArraySerializer);
 
         return $this;
     }

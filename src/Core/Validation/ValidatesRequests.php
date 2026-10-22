@@ -18,7 +18,7 @@ trait ValidatesRequests
      *
      * @throws ValidationException
      */
-    public function validateWith($validator, Request $request = null)
+    public function validateWith($validator, ?Request $request = null)
     {
         $request = $request ?: request();
 
@@ -84,7 +84,7 @@ trait ValidatesRequests
     /**
      * Get the validation factory.
      *
-     * @return \Illuminate\Contracts\Validation\Factory
+     * @return Factory
      */
     protected function getValidationFactory()
     {

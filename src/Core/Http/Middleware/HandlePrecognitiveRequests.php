@@ -5,6 +5,8 @@ namespace Themosis\Core\Http\Middleware;
 use Illuminate\Container\Container;
 use Illuminate\Foundation\Routing\PrecognitionCallableDispatcher;
 use Illuminate\Foundation\Routing\PrecognitionControllerDispatcher;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Contracts\CallableDispatcher as CallableDispatcherContract;
 use Illuminate\Routing\Contracts\ControllerDispatcher as ControllerDispatcherContract;
 
@@ -13,14 +15,13 @@ class HandlePrecognitiveRequests
     /**
      * The container instance.
      *
-     * @var \Illuminate\Container\Container
+     * @var Container
      */
     protected $container;
 
     /**
      * Create a new middleware instance.
      *
-     * @param  \Illuminate\Container\Container  $container
      * @return void
      */
     public function __construct(Container $container)
@@ -31,9 +32,9 @@ class HandlePrecognitiveRequests
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  \Closure  $next
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function handle($request, $next)
     {
@@ -53,7 +54,7 @@ class HandlePrecognitiveRequests
     /**
      * Prepare to handle a precognitive request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return void
      */
     protected function prepareForPrecognition($request)
@@ -67,9 +68,9 @@ class HandlePrecognitiveRequests
     /**
      * Append the appropriate "Vary" header to the given response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Http\Response  $response
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @param  Response  $response
+     * @return Response
      */
     protected function appendVaryHeader($request, $response)
     {

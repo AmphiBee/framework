@@ -3,6 +3,7 @@
 namespace Themosis\Core\Support\Providers;
 
 use Closure;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Traits\ForwardsCalls;
@@ -22,7 +23,7 @@ class RouteServiceProvider extends ServiceProvider
     /**
      * The callback that should be used to load application's routes.
      *
-     * @var \Closure|null
+     * @var Closure|null
      */
     protected $loadRoutesUsing;
 
@@ -101,7 +102,7 @@ class RouteServiceProvider extends ServiceProvider
      * @param  array  $parameters
      * @return mixed
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function __call($method, $parameters)
     {

@@ -3,6 +3,7 @@
 namespace Themosis\Core\Auth;
 
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Validation\Validator;
 use Themosis\Core\Http\FormRequest;
 
 class EmailVerificationRequest extends FormRequest
@@ -56,8 +57,8 @@ class EmailVerificationRequest extends FormRequest
     /**
      * Configure the validator instance.
      *
-     * @param  \Illuminate\Validation\Validator  $validator
-     * @return \Illuminate\Validation\Validator
+     * @param  Validator  $validator
+     * @return Validator
      */
     public function withValidator($validator)
     {

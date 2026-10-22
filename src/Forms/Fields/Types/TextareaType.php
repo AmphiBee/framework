@@ -8,7 +8,7 @@ use Themosis\Forms\Fields\Contracts\CanHandlePageSettings;
 use Themosis\Forms\Fields\Contracts\CanHandleTerms;
 use Themosis\Forms\Fields\Contracts\CanHandleUsers;
 
-class TextareaType extends BaseType implements DataTransformerInterface, CanHandleMetabox, CanHandlePageSettings, CanHandleTerms, CanHandleUsers
+class TextareaType extends BaseType implements CanHandleMetabox, CanHandlePageSettings, CanHandleTerms, CanHandleUsers, DataTransformerInterface
 {
     /**
      * TextareaType field view.

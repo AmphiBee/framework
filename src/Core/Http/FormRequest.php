@@ -3,6 +3,7 @@
 namespace Themosis\Core\Http;
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Validation\ValidatesWhenResolved;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
@@ -56,7 +57,7 @@ class FormRequest extends Request implements ValidatesWhenResolved
     protected $errorBag = 'default';
 
     /**
-     * @var \Illuminate\Contracts\Validation\Validator
+     * @var ValidatorContract
      */
     protected $validator;
 
@@ -65,7 +66,7 @@ class FormRequest extends Request implements ValidatesWhenResolved
      *
      * @return ValidatorContract
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     protected function getValidatorInstance()
     {
@@ -202,7 +203,7 @@ class FormRequest extends Request implements ValidatesWhenResolved
      */
     protected function failedAuthorization()
     {
-        throw new AuthorizationException();
+        throw new AuthorizationException;
     }
 
     /**

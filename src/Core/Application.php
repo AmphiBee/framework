@@ -4,21 +4,62 @@ namespace Themosis\Core;
 
 use Closure;
 use Composer\Autoload\ClassLoader;
+use Illuminate\Auth\AuthManager;
+use Illuminate\Auth\Passwords\PasswordBroker;
+use Illuminate\Auth\Passwords\PasswordBrokerManager;
+use Illuminate\Cache\CacheManager;
 use Illuminate\Container\Container;
+use Illuminate\Container\EntryNotFoundException;
+use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Contracts\Auth\PasswordBrokerFactory;
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Cookie\QueueingFactory;
+use Illuminate\Contracts\Filesystem\Cloud;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Illuminate\Contracts\Foundation\CachesConfiguration;
 use Illuminate\Contracts\Foundation\CachesRoutes;
+use Illuminate\Contracts\Foundation\MaintenanceMode;
+use Illuminate\Contracts\Hashing\Hasher;
 use Illuminate\Contracts\Http\Kernel as HttpKernelContract;
+use Illuminate\Contracts\Mail\MailQueue;
+use Illuminate\Contracts\Queue\Monitor;
+use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Contracts\Routing\BindingRegistrar;
+use Illuminate\Contracts\Routing\Registrar;
+use Illuminate\Contracts\Session\Session;
+use Illuminate\Cookie\CookieJar;
+use Illuminate\Database\Connection;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Database\ConnectionResolverInterface;
+use Illuminate\Database\DatabaseManager;
+use Illuminate\Encryption\Encrypter;
+use Illuminate\Events\Dispatcher;
 use Illuminate\Events\EventServiceProvider;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Filesystem\FilesystemManager;
+use Illuminate\Hashing\HashManager;
 use Illuminate\Http\Request;
+use Illuminate\Log\LogManager;
 use Illuminate\Log\LogServiceProvider;
+use Illuminate\Mail\Mailer;
+use Illuminate\Queue\Failed\FailedJobProviderInterface;
+use Illuminate\Queue\QueueManager;
+use Illuminate\Redis\RedisManager;
+use Illuminate\Routing\Redirector;
+use Illuminate\Routing\UrlGenerator;
+use Illuminate\Session\SessionManager;
+use Illuminate\Session\Store;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Env;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Translation\Translator;
+use Illuminate\View\Compilers\BladeCompiler;
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
@@ -26,9 +67,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Themosis\Ajax\Ajax;
+use Themosis\Asset\Factory;
 use Themosis\Core\Bootstrap\EnvironmentLoader;
 use Themosis\Core\Events\LocaleUpdated;
+use Themosis\Forms\FormFactory;
+use Themosis\Hook\ActionBuilder;
+use Themosis\Hook\FilterBuilder;
+use Themosis\Html\HtmlBuilder;
+use Themosis\Route\Router;
 use Themosis\Route\RouteServiceProvider;
+use Themosis\Taxonomy\TaxonomyFieldFactory;
 
 class Application extends Container implements ApplicationContract, CachesConfiguration, CachesRoutes, HttpKernelInterface
 {
@@ -163,7 +212,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
         $this->instance('app', $this);
         $this->instance(Container::class, $this);
         $this->instance(PackageManifest::class, new PackageManifest(
-            new Filesystem(),
+            new Filesystem,
             $this->basePath(),
             $this->getCachedPackagesPath(),
         ));
@@ -186,40 +235,40 @@ class Application extends Container implements ApplicationContract, CachesConfig
     {
         $list = [
             'action' => [
-                \Themosis\Hook\ActionBuilder::class,
+                ActionBuilder::class,
             ],
             'ajax' => [
-                \Themosis\Ajax\Ajax::class,
+                Ajax::class,
             ],
             'app' => [
                 Application::class,
                 \Illuminate\Contracts\Container\Container::class,
-                \Illuminate\Contracts\Foundation\Application::class,
-                \Psr\Container\ContainerInterface::class,
+                ApplicationContract::class,
+                ContainerInterface::class,
             ],
             'asset' => [
-                \Themosis\Asset\Factory::class,
+                Factory::class,
             ],
             'auth' => [
-                \Illuminate\Auth\AuthManager::class,
+                AuthManager::class,
                 \Illuminate\Contracts\Auth\Factory::class,
             ],
             'auth.driver' => [
-                \Illuminate\Contracts\Auth\Guard::class,
+                Guard::class,
             ],
             'auth.password' => [
-                \Illuminate\Auth\Passwords\PasswordBrokerManager::class,
-                \Illuminate\Contracts\Auth\PasswordBrokerFactory::class,
+                PasswordBrokerManager::class,
+                PasswordBrokerFactory::class,
             ],
             'auth.password.broker' => [
-                \Illuminate\Auth\Passwords\PasswordBroker::class,
+                PasswordBroker::class,
                 \Illuminate\Contracts\Auth\PasswordBroker::class,
             ],
             'blade.compiler' => [
-                \Illuminate\View\Compilers\BladeCompiler::class,
+                BladeCompiler::class,
             ],
             'cache' => [
-                \Illuminate\Cache\CacheManager::class,
+                CacheManager::class,
                 \Illuminate\Contracts\Cache\Factory::class,
             ],
             'cache.store' => [
@@ -228,65 +277,65 @@ class Application extends Container implements ApplicationContract, CachesConfig
             ],
             'config' => [
                 \Illuminate\Config\Repository::class,
-                \Illuminate\Contracts\Config\Repository::class,
+                Repository::class,
             ],
             'cookie' => [
-                \Illuminate\Cookie\CookieJar::class,
+                CookieJar::class,
                 \Illuminate\Contracts\Cookie\Factory::class,
-                \Illuminate\Contracts\Cookie\QueueingFactory::class,
+                QueueingFactory::class,
             ],
             'db' => [
-                \Illuminate\Database\ConnectionResolverInterface::class,
-                \Illuminate\Database\DatabaseManager::class,
+                ConnectionResolverInterface::class,
+                DatabaseManager::class,
             ],
             'db.connection' => [
-                \Illuminate\Database\Connection::class,
-                \Illuminate\Database\ConnectionInterface::class,
+                Connection::class,
+                ConnectionInterface::class,
             ],
             'encrypter' => [
-                \Illuminate\Encryption\Encrypter::class,
+                Encrypter::class,
                 \Illuminate\Contracts\Encryption\Encrypter::class,
             ],
             'events' => [
-                \Illuminate\Events\Dispatcher::class,
+                Dispatcher::class,
                 \Illuminate\Contracts\Events\Dispatcher::class,
             ],
             'files' => [
-                \Illuminate\Filesystem\Filesystem::class,
+                Filesystem::class,
             ],
             'filesystem' => [
-                \Illuminate\Filesystem\FilesystemManager::class,
+                FilesystemManager::class,
                 \Illuminate\Contracts\Filesystem\Factory::class,
             ],
             'filesystem.disk' => [
                 \Illuminate\Contracts\Filesystem\Filesystem::class,
             ],
             'filesystem.cloud' => [
-                \Illuminate\Contracts\Filesystem\Cloud::class,
+                Cloud::class,
             ],
             'filter' => [
-                \Themosis\Hook\FilterBuilder::class,
+                FilterBuilder::class,
             ],
             'form' => [
-                \Themosis\Forms\FormFactory::class,
+                FormFactory::class,
             ],
             'hash' => [
-                \Illuminate\Hashing\HashManager::class,
+                HashManager::class,
             ],
             'hash.driver' => [
-                \Illuminate\Contracts\Hashing\Hasher::class,
+                Hasher::class,
             ],
             'html' => [
-                \Themosis\Html\HtmlBuilder::class,
+                HtmlBuilder::class,
             ],
             'log' => [
-                \Illuminate\Log\LogManager::class,
-                \Psr\Log\LoggerInterface::class,
+                LogManager::class,
+                LoggerInterface::class,
             ],
             'mailer' => [
-                \Illuminate\Mail\Mailer::class,
+                Mailer::class,
                 \Illuminate\Contracts\Mail\Mailer::class,
-                \Illuminate\Contracts\Mail\MailQueue::class,
+                MailQueue::class,
             ],
             'metabox' => [
                 \Themosis\Metabox\Factory::class,
@@ -295,55 +344,55 @@ class Application extends Container implements ApplicationContract, CachesConfig
                 \Themosis\PostType\Factory::class,
             ],
             'queue' => [
-                \Illuminate\Queue\QueueManager::class,
+                QueueManager::class,
                 \Illuminate\Contracts\Queue\Factory::class,
-                \Illuminate\Contracts\Queue\Monitor::class,
+                Monitor::class,
             ],
             'queue.connection' => [
-                \Illuminate\Contracts\Queue\Queue::class,
+                Queue::class,
             ],
             'queue.failer' => [
-                \Illuminate\Queue\Failed\FailedJobProviderInterface::class,
+                FailedJobProviderInterface::class,
             ],
             'redirect' => [
-                \Illuminate\Routing\Redirector::class,
+                Redirector::class,
             ],
             'redis' => [
-                \Illuminate\Redis\RedisManager::class,
+                RedisManager::class,
                 \Illuminate\Contracts\Redis\Factory::class,
             ],
             'request' => [
-                \Illuminate\Http\Request::class,
-                \Symfony\Component\HttpFoundation\Request::class,
+                Request::class,
+                SymfonyRequest::class,
             ],
             'router' => [
-                \Themosis\Route\Router::class,
+                Router::class,
                 \Illuminate\Routing\Router::class,
-                \Illuminate\Contracts\Routing\Registrar::class,
-                \Illuminate\Contracts\Routing\BindingRegistrar::class,
+                Registrar::class,
+                BindingRegistrar::class,
             ],
             'session' => [
-                \Illuminate\Session\SessionManager::class,
+                SessionManager::class,
             ],
             'session.store' => [
-                \Illuminate\Session\Store::class,
-                \Illuminate\Contracts\Session\Session::class,
+                Store::class,
+                Session::class,
             ],
             'taxonomy' => [
                 \Themosis\Taxonomy\Factory::class,
             ],
             'taxonomy.field' => [
-                \Themosis\Taxonomy\TaxonomyFieldFactory::class,
+                TaxonomyFieldFactory::class,
             ],
             'translator' => [
-                \Illuminate\Translation\Translator::class,
+                Translator::class,
                 \Illuminate\Contracts\Translation\Translator::class,
             ],
             'twig' => [
                 \Twig_Environment::class,
             ],
             'url' => [
-                \Illuminate\Routing\UrlGenerator::class,
+                UrlGenerator::class,
                 \Illuminate\Contracts\Routing\UrlGenerator::class,
             ],
             'validator' => [
@@ -366,7 +415,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
     /**
      * Get the base path of the Laravel installation.
      *
-     * @param  string  $path Optional path to append to the base path.
+     * @param  string  $path  Optional path to append to the base path.
      * @return string
      */
     public function basePath($path = '')
@@ -623,7 +672,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
      * @param  string  $path
      * @return string
      *
-     * @throws \Illuminate\Container\EntryNotFoundException
+     * @throws EntryNotFoundException
      */
     public function wordpressPath($path = '')
     {
@@ -713,7 +762,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
     {
         $args = $_SERVER['argv'] ?? null;
 
-        return $this['env'] = (new EnvironmentDetector())->detect($callback, $args);
+        return $this['env'] = (new EnvironmentDetector)->detect($callback, $args);
     }
 
     /**
@@ -731,7 +780,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
      *
      * @return bool
      *
-     * @throws \Illuminate\Container\EntryNotFoundException
+     * @throws EntryNotFoundException
      */
     public function isDownForMaintenance()
     {
@@ -756,7 +805,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
 
         $providers->splice(1, 0, [$this->make(PackageManifest::class)->providers()]);
 
-        (new ProviderRepository($this, new Filesystem(), $this->getCachedServicesPath()))
+        (new ProviderRepository($this, new Filesystem, $this->getCachedServicesPath()))
             ->load($providers->collapse()->toArray());
     }
 
@@ -957,10 +1006,10 @@ class Application extends Container implements ApplicationContract, CachesConfig
      * When $catch is true, the implementation must catch all exceptions
      * and do its best to convert them to a Response instance.
      *
-     * @param  SymfonyRequest  $request A Request instance
-     * @param  int  $type    The type of the request
-     *                                (one of HttpKernelInterface::MASTER_REQUEST or HttpKernelInterface::SUB_REQUEST)
-     * @param  bool  $catch   Whether to catch exceptions or not
+     * @param  SymfonyRequest  $request  A Request instance
+     * @param  int  $type  The type of the request
+     *                     (one of HttpKernelInterface::MASTER_REQUEST or HttpKernelInterface::SUB_REQUEST)
+     * @param  bool  $catch  Whether to catch exceptions or not
      * @return Response A Response instance
      *
      * @throws \Exception When an Exception occurs during processing
@@ -973,10 +1022,10 @@ class Application extends Container implements ApplicationContract, CachesConfig
     /**
      * Register a service provider with the application.
      *
-     * @param  \Illuminate\Support\ServiceProvider|string  $provider
+     * @param  ServiceProvider|string  $provider
      * @param  array  $options
      * @param  bool  $force
-     * @return \Illuminate\Support\ServiceProvider
+     * @return ServiceProvider
      */
     public function register($provider, $options = [], $force = false)
     {
@@ -1114,7 +1163,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
     /**
      * Get an instance of the maintenance mode manager implementation.
      *
-     * @return \Illuminate\Contracts\Foundation\MaintenanceMode
+     * @return MaintenanceMode
      */
     public function maintenanceMode()
     {
@@ -1130,7 +1179,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
      * @param  string  $abstract
      * @return mixed
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public function make($abstract, array $parameters = [])
     {
@@ -1221,7 +1270,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function loadPlugin(string $filePath, string $configPath)
     {
-        $plugin = (new PluginManager($this, $filePath, new ClassLoader()))->load($configPath);
+        $plugin = (new PluginManager($this, $filePath, new ClassLoader))->load($configPath);
 
         $this->instance('wp.plugin.'.$plugin->getHeader('plugin_id'), $plugin);
 
@@ -1233,24 +1282,24 @@ class Application extends Container implements ApplicationContract, CachesConfig
      * any found mu-plugins after the framework.
      *
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      * @throws \Exception
      */
     public function loadPlugins(string $pluginsPath)
     {
-        $directories = Collection::make((new Filesystem())->directories($this->mupluginsPath()))
+        $directories = Collection::make((new Filesystem)->directories($this->mupluginsPath()))
             ->map(function ($directory) {
                 return ltrim(substr($directory, strrpos($directory, DS)), '\/');
             })->toArray();
 
-        (new PluginsRepository($this, new Filesystem(), $pluginsPath, $this->getCachedPluginsPath()))
+        (new PluginsRepository($this, new Filesystem, $pluginsPath, $this->getCachedPluginsPath()))
             ->load($directories);
     }
 
     /**
      * Register a plugin and load it.
      *
-     * @param  string  $path Plugin relative path (pluginDirName/pluginMainFile).
+     * @param  string  $path  Plugin relative path (pluginDirName/pluginMainFile).
      */
     public function registerPlugin(string $path)
     {
@@ -1305,13 +1354,13 @@ class Application extends Container implements ApplicationContract, CachesConfig
     /**
      * Load current active theme.
      *
-     * @param  string  $dirPath    The theme directory path.
-     * @param  string  $configPath The theme relative configuration folder path.
+     * @param  string  $dirPath  The theme directory path.
+     * @param  string  $configPath  The theme relative configuration folder path.
      * @return ThemeManager
      */
     public function loadTheme(string $dirPath, string $configPath)
     {
-        $theme = (new ThemeManager($this, $dirPath, new ClassLoader()))
+        $theme = (new ThemeManager($this, $dirPath, new ClassLoader))
             ->load($dirPath.'/'.trim($configPath, '\/'));
 
         $this->instance('wp.theme', $theme);
@@ -1322,7 +1371,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
     /**
      * Load configuration files based on given path.
      *
-     * @param  string  $path   The configuration files folder path.
+     * @param  string  $path  The configuration files folder path.
      * @return Application
      */
     public function loadConfigurationFiles(Repository $config, $path = '')
@@ -1381,7 +1430,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function abort($code, $message = '', array $headers = [])
     {
-        if (404 == $code) {
+        if ($code == 404) {
             throw new NotFoundHttpException($message);
         }
 
@@ -1417,7 +1466,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
      * theme integration.
      *
      * @param  string  $kernel  Application kernel class name.
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @param  SymfonyRequest  $request
      * @return $this
      */
     public function manage(string $kernel, $request)
@@ -1449,7 +1498,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
      * Handle WordPress administration incoming request.
      * Only send response headers.
      *
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @param  SymfonyRequest  $request
      * @return $this;
      */
     public function manageAdmin(string $kernel, $request)
@@ -1478,7 +1527,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
             /** @var Response $response */
             $response = $kernel->handle($request);
 
-            if (500 <= $response->getStatusCode()) {
+            if ($response->getStatusCode() >= 500) {
                 // In case of an internal server error, we stop the process
                 // and send full response back to the user.
                 $response->send();

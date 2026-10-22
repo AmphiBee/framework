@@ -8,11 +8,11 @@ use Themosis\Core\PackageManifest;
 
 class PackageManifestTest extends TestCase
 {
-    public function testAssetLoading()
+    public function test_asset_loading()
     {
         @unlink(__DIR__.'/fixtures/packages.php');
         $manifest = new PackageManifest(
-            new Filesystem(),
+            new Filesystem,
             __DIR__.'/fixtures',
             __DIR__.'/fixtures/packages.php',
         );

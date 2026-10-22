@@ -11,9 +11,9 @@ use Themosis\Core\Support\WordPressFileHeaders;
 
 class PluginManager
 {
-    use WordPressFileHeaders;
     use IncludesFiles;
     use PluginHeaders;
+    use WordPressFileHeaders;
 
     /**
      * @var Application
@@ -63,7 +63,7 @@ class PluginManager
         $this->filePath = $filePath;
         $this->dirPath = realpath(dirname($filePath));
         $this->loader = $loader;
-        $this->config = $this->app->has('config') ? $this->app['config'] : new Repository();
+        $this->config = $this->app->has('config') ? $this->app['config'] : new Repository;
     }
 
     /**
@@ -100,7 +100,7 @@ class PluginManager
     /**
      * Return the plugin root path.
      *
-     * @param  string  $path Path to append to the plugin root path.
+     * @param  string  $path  Path to append to the plugin root path.
      */
     public function getPath(string $path = ''): string
     {
@@ -139,7 +139,7 @@ class PluginManager
     /**
      * Return a plugin configuration value.
      *
-     * @param  string  $key     Key configuration short name.
+     * @param  string  $key  Key configuration short name.
      * @param  mixed  $default
      * @return mixed
      */

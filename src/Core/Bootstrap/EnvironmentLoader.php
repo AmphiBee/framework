@@ -32,11 +32,11 @@ class EnvironmentLoader
     /**
      * Detect if a custom environment file matching the APP_ENV exists.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @param  Application  $app
      */
     protected function checkForSpecificEnvironmentFile($app)
     {
-        if ($app->runningInConsole() && ($input = new ArgvInput())->hasParameterOption('--env')) {
+        if ($app->runningInConsole() && ($input = new ArgvInput)->hasParameterOption('--env')) {
             if ($this->setEnvironmentFilePath(
                 $app,
                 $app->environmentFile().'.'.$input->getParameterOption('--env'),
@@ -58,7 +58,7 @@ class EnvironmentLoader
     /**
      * Load a custom environment file.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @param  Application  $app
      * @param  string  $file
      * @return bool
      */
@@ -76,7 +76,7 @@ class EnvironmentLoader
     /**
      * Create a Dotenv instance.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @param  Application  $app
      * @return Dotenv
      */
     protected function createDotenv($app)
@@ -93,7 +93,7 @@ class EnvironmentLoader
      */
     protected function writeErrorAndDie(InvalidFileException $e)
     {
-        $output = (new ConsoleOutput())->getErrorOutput();
+        $output = (new ConsoleOutput)->getErrorOutput();
 
         $output->writeln('The environment file is invalid!');
         $output->writeln($e->getMessage());

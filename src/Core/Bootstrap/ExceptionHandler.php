@@ -184,7 +184,7 @@ class ExceptionHandler
      * Create a new fatal exception instance from an error array.
      *
      * @param  int|null  $traceOffset
-     * @return \Symfony\Component\ErrorHandler\Error\FatalError
+     * @return FatalError
      */
     protected function fatalExceptionFromError(array $error, $traceOffset = null)
     {
@@ -201,7 +201,7 @@ class ExceptionHandler
      */
     protected function renderForConsole(\Throwable $e)
     {
-        $this->getExceptionHandler()->renderForConsole(new ConsoleOutput(), $e);
+        $this->getExceptionHandler()->renderForConsole(new ConsoleOutput, $e);
     }
 
     /**
@@ -215,7 +215,7 @@ class ExceptionHandler
     /**
      * Get an instance of the exception handler.
      *
-     * @return \Illuminate\Contracts\Debug\ExceptionHandler
+     * @return ExceptionHandlerContract
      */
     protected function getExceptionHandler()
     {

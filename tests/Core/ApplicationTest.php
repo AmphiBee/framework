@@ -18,14 +18,14 @@ use Themosis\Route\RouteServiceProvider;
 
 class ApplicationTest extends TestCase
 {
-    public function testBasePathSetup()
+    public function test_base_path_setup()
     {
         $path = realpath(__DIR__.'/../../');
         $app = new Application($path);
         $this->assertEquals($path, $app->basePath());
     }
 
-    public function testApplicationPaths()
+    public function test_application_paths()
     {
         $path = realpath(__DIR__.'/../');
         $app = new Application($path);
@@ -116,7 +116,7 @@ class ApplicationTest extends TestCase
         );
     }
 
-    public function testApplicationBaseBindings()
+    public function test_application_base_bindings()
     {
         $path = realpath(__DIR__.'/../');
         $app = new Application($path);
@@ -138,7 +138,7 @@ class ApplicationTest extends TestCase
         );
     }
 
-    public function testApplicationBaseServiceProviders()
+    public function test_application_base_service_providers()
     {
         $path = realpath(__DIR__.'/../');
         $app = new Application($path);
@@ -160,9 +160,9 @@ class ApplicationTest extends TestCase
         );
     }
 
-    public function testServiceProvidersAreCorrectlyRegistered()
+    public function test_service_providers_are_correctly_registered()
     {
-        $app = new Application();
+        $app = new Application;
         $provider = $this->getMockBuilder('BasicServiceProvider')->setMethods(['register', 'boot'])->getMock();
         $class = get_class($provider);
         $provider->expects($this->once())->method('register');
@@ -171,9 +171,9 @@ class ApplicationTest extends TestCase
         $this->assertTrue(in_array($class, $app->getLoadedProviders()));
     }
 
-    public function testClassesAreBoundWhenServiceProviderIsRegistered()
+    public function test_classes_are_bound_when_service_provider_is_registered()
     {
-        $app = new Application();
+        $app = new Application;
         $provider = new ServiceProviderForTestingThree($app);
         $app->register($provider);
 
@@ -181,9 +181,9 @@ class ApplicationTest extends TestCase
         $this->assertInstanceOf(ConcreteClass::class, $app->make(AbstractClass::class));
     }
 
-    public function testSingletonsAreCreatedWhenServiceProviderIsRegistered()
+    public function test_singletons_are_created_when_service_provider_is_registered()
     {
-        $app = new Application();
+        $app = new Application;
         $provider = new ServiceProviderForTestingThree($app);
         $app->register($provider);
 
@@ -192,9 +192,9 @@ class ApplicationTest extends TestCase
         $this->assertSame($instance, $app->make(AbstractClass::class));
     }
 
-    public function testDeferredServicesMarkedAsBound()
+    public function test_deferred_services_marked_as_bound()
     {
-        $app = new Application();
+        $app = new Application;
         $app->setDeferredServices([
             'foo' => 'Themosis\Tests\Core\ApplicationDeferredServiceStub',
         ]);
@@ -203,9 +203,9 @@ class ApplicationTest extends TestCase
         $this->assertEquals('foo', $app->make('foo'));
     }
 
-    public function testDeferredServicesAreShared()
+    public function test_deferred_services_are_shared()
     {
-        $app = new Application();
+        $app = new Application;
         $app->setDeferredServices([
             'foo' => 'Themosis\Tests\Core\ApplicationDeferredSharedService',
         ]);
@@ -219,9 +219,9 @@ class ApplicationTest extends TestCase
         $this->assertSame($one, $two);
     }
 
-    public function testDeferredServiceCanBeExtended()
+    public function test_deferred_service_can_be_extended()
     {
-        $app = new Application();
+        $app = new Application;
         $app->setDeferredServices([
             'foo' => 'Themosis\Tests\Core\ApplicationDeferredServiceStub',
         ]);
@@ -232,9 +232,9 @@ class ApplicationTest extends TestCase
         $this->assertEquals('foobar', $app->make('foo'));
     }
 
-    public function testDeferredServiceProviderIsRegisteredOnlyOnce()
+    public function test_deferred_service_provider_is_registered_only_once()
     {
-        $app = new Application();
+        $app = new Application;
         $app->setDeferredServices([
             'foo' => 'Themosis\Tests\Core\ApplicationDeferredServiceCountStub',
         ]);
@@ -244,9 +244,9 @@ class ApplicationTest extends TestCase
         $this->assertEquals(1, ApplicationDeferredServiceCountStub::$count);
     }
 
-    public function testDeferredServiceDontRunWhenInstanceSet()
+    public function test_deferred_service_dont_run_when_instance_set()
     {
-        $app = new Application();
+        $app = new Application;
         $app->setDeferredServices([
             'foo' => 'Themosis\Tests\Core\ApplicationDeferredServiceStub',
         ]);
@@ -255,10 +255,10 @@ class ApplicationTest extends TestCase
         $this->assertEquals($instance, 'bar');
     }
 
-    public function testDeferredServicesAreLazilyInitialized()
+    public function test_deferred_services_are_lazily_initialized()
     {
         ApplicationDeferredServiceStub::$initialized = false;
-        $app = new Application();
+        $app = new Application;
         $app->setDeferredServices([
             'foo' => 'Themosis\Tests\Core\ApplicationDeferredServiceStub',
         ]);
@@ -274,9 +274,9 @@ class ApplicationTest extends TestCase
         $this->assertTrue(ApplicationDeferredServiceStub::$initialized);
     }
 
-    public function testDeferredServicesCanRegisterFactories()
+    public function test_deferred_services_can_register_factories()
     {
-        $app = new Application();
+        $app = new Application;
         $app->setDeferredServices([
             'foo' => 'Themosis\Tests\Core\ApplicationFactoryServiceProvider',
         ]);
@@ -287,9 +287,9 @@ class ApplicationTest extends TestCase
         $this->assertEquals(3, $app->make('foo'));
     }
 
-    public function testSingleProviderCanProvideMultipleDeferredServices()
+    public function test_single_provider_can_provide_multiple_deferred_services()
     {
-        $app = new Application();
+        $app = new Application;
         $app->setDeferredServices([
             'foo' => 'Themosis\Tests\Core\ApplicationMultiProvider',
             'bar' => 'Themosis\Tests\Core\ApplicationMultiProvider',
@@ -299,9 +299,9 @@ class ApplicationTest extends TestCase
         $this->assertEquals('foobar', $app->make('bar'));
     }
 
-    public function testEnvironment()
+    public function test_environment()
     {
-        $app = new Application();
+        $app = new Application;
         $app['env'] = 'foo';
 
         $this->assertEquals('foo', $app->environment());
@@ -316,11 +316,10 @@ class ApplicationTest extends TestCase
         $this->assertFalse($app->environment(['qux', 'bar']));
     }
 
-    public function testMethodAfterLoadingEnvironmentAddsClosure()
+    public function test_method_after_loading_environment_adds_closure()
     {
-        $app = new Application();
-        $closure = function () {
-        };
+        $app = new Application;
+        $closure = function () {};
         $app->afterLoadingEnvironment($closure);
         $this->assertArrayHasKey(
             0,
@@ -328,11 +327,10 @@ class ApplicationTest extends TestCase
         );
     }
 
-    public function testBeforeBootstrappingMethodAddsClosure()
+    public function test_before_bootstrapping_method_adds_closure()
     {
-        $app = new Application();
-        $closure = function () {
-        };
+        $app = new Application;
+        $closure = function () {};
         $app->beforeBootstrapping('Themosis\Core\Bootstrap\RegisterFacades', $closure);
         $this->assertArrayHasKey(
             0,
@@ -340,11 +338,10 @@ class ApplicationTest extends TestCase
         );
     }
 
-    public function testAfterBootstrappingMethodAddsClosure()
+    public function test_after_bootstrapping_method_adds_closure()
     {
-        $app = new Application();
-        $closure = function () {
-        };
+        $app = new Application;
+        $closure = function () {};
         $app->afterBootstrapping('Themosis\Core\Bootstrap\RegisterFacades', $closure);
         $this->assertArrayHasKey(
             0,
@@ -354,7 +351,7 @@ class ApplicationTest extends TestCase
 
     public function test_application_can_abort()
     {
-        $app = new Application();
+        $app = new Application;
 
         $this->expectException(HttpException::class);
 
@@ -363,7 +360,7 @@ class ApplicationTest extends TestCase
 
     public function test_abort_helper_handle_response()
     {
-        new Application();
+        new Application;
 
         $this->expectException(HttpResponseException::class);
 
@@ -372,14 +369,14 @@ class ApplicationTest extends TestCase
 
     public function test_abort_helper_handle_responsable()
     {
-        $app = new Application();
+        $app = new Application;
         $app->bind('request', function () {
-            return new Request();
+            return new Request;
         });
 
         $this->expectException(HttpResponseException::class);
 
-        abort(new CustomResponse());
+        abort(new CustomResponse);
     }
 }
 
@@ -422,7 +419,7 @@ class ApplicationDeferredServiceCountStub extends ServiceProvider
     public function register()
     {
         static::$count++;
-        $this->app['foo'] = new \stdClass();
+        $this->app['foo'] = new \stdClass;
     }
 }
 
@@ -433,7 +430,7 @@ class ApplicationDeferredSharedService extends ServiceProvider
     public function register()
     {
         $this->app->singleton('foo', function () {
-            return new \stdClass();
+            return new \stdClass;
         });
     }
 }
@@ -451,9 +448,7 @@ class ApplicationDeferredServiceStub extends ServiceProvider
     }
 }
 
-class ServiceProviderWithNoRegisterMethod extends ServiceProvider
-{
-}
+class ServiceProviderWithNoRegisterMethod extends ServiceProvider {}
 
 class ServiceProviderForTestingThree extends ServiceProvider
 {
@@ -465,13 +460,9 @@ class ServiceProviderForTestingThree extends ServiceProvider
         AbstractClass::class => ConcreteClass::class,
     ];
 
-    public function register()
-    {
-    }
+    public function register() {}
 
-    public function boot()
-    {
-    }
+    public function boot() {}
 }
 
 abstract class AbstractClass

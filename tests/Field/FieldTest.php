@@ -28,12 +28,12 @@ class FieldTest extends TestCase
             ->setView('textfield')
             ->with(['title' => 'myvarvalue']);
 
-        $this->assertTrue(false !== strpos($text->render(), 'myvarvalue'));
+        $this->assertTrue(strpos($text->render(), 'myvarvalue') !== false);
 
         $email = $factory->email('email')
             ->with(['email' => 'contactme@company.org'])
             ->setView('emailfield');
 
-        $this->assertTrue(false !== strpos($email->render(), 'contactme@company.org'));
+        $this->assertTrue(strpos($email->render(), 'contactme@company.org') !== false);
     }
 }

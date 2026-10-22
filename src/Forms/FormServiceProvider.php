@@ -25,7 +25,7 @@ class FormServiceProvider extends ServiceProvider
                 $app['validator'],
                 $app['view'],
                 $app['league.fractal'],
-                new Factory(),
+                new Factory,
             );
         });
     }
@@ -36,7 +36,7 @@ class FormServiceProvider extends ServiceProvider
     protected function registerFractalManager()
     {
         $this->app->bind('league.fractal', function () {
-            return new Manager();
+            return new Manager;
         });
     }
 

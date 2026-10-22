@@ -8,7 +8,7 @@ use Themosis\Core\Application as CoreApplication;
 trait Application
 {
     /**
-     * @var \Themosis\Core\Application
+     * @var CoreApplication
      */
     protected $application;
 
@@ -23,10 +23,10 @@ trait Application
             return $this->application;
         }
 
-        $this->application = new CoreApplication();
+        $this->application = new CoreApplication;
 
         $this->application->bind('config', function () {
-            $config = new Repository();
+            $config = new Repository;
             $config->set('app.locale', 'en_US');
 
             return $config;

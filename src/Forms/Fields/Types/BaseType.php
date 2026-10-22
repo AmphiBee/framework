@@ -299,7 +299,7 @@ abstract class BaseType extends HtmlBuilder implements \ArrayAccess, \Countable,
         }
 
         // Set some default CSS classes if chosen theme is "bootstrap".
-        if (isset($options['theme']) && 'bootstrap' === $options['theme']) {
+        if (isset($options['theme']) && $options['theme'] === 'bootstrap') {
             if (isset($options['attributes']['class'])) {
                 $options['attributes']['class'] .= ' form-control';
             } else {
@@ -317,10 +317,8 @@ abstract class BaseType extends HtmlBuilder implements \ArrayAccess, \Countable,
 
     /**
      * Return field options.
-     *
-     * @param  array  $excludes
      */
-    public function getOptions(array $excludes = null): array
+    public function getOptions(?array $excludes = null): array
     {
         if (! is_null($excludes)) {
             return array_filter($this->options, function ($key) use ($excludes) {
@@ -433,7 +431,7 @@ abstract class BaseType extends HtmlBuilder implements \ArrayAccess, \Countable,
     /**
      * Add an attribute to the field.
      *
-     * @param  bool  $overwrite By default, it appends the value. Set to true, to replace the existing attribute value.
+     * @param  bool  $overwrite  By default, it appends the value. Set to true, to replace the existing attribute value.
      */
     public function addAttribute(string $name, string $value, $overwrite = false): FieldTypeInterface
     {
@@ -633,7 +631,7 @@ abstract class BaseType extends HtmlBuilder implements \ArrayAccess, \Countable,
     public function errors(): MessageBag
     {
         if (is_null($this->errors)) {
-            return new NullMessageBag();
+            return new NullMessageBag;
         }
 
         return $this->errors;
@@ -735,7 +733,7 @@ abstract class BaseType extends HtmlBuilder implements \ArrayAccess, \Countable,
      */
     protected function serialize(): FieldTypeInterface
     {
-        $this->manager->setSerializer(new ArraySerializer());
+        $this->manager->setSerializer(new ArraySerializer);
 
         return $this;
     }
@@ -777,7 +775,7 @@ abstract class BaseType extends HtmlBuilder implements \ArrayAccess, \Countable,
      *
      * @link http://php.net/manual/en/arrayaccess.offsetexists.php
      *
-     * @param  mixed  $offset An offset to check for.
+     * @param  mixed  $offset  An offset to check for.
      * @return bool true on success or false on failure.
      *
      * @since 5.0.0
@@ -792,7 +790,7 @@ abstract class BaseType extends HtmlBuilder implements \ArrayAccess, \Countable,
      *
      * @link http://php.net/manual/en/arrayaccess.offsetget.php
      *
-     * @param  mixed  $offset The offset to retrieve.
+     * @param  mixed  $offset  The offset to retrieve.
      * @return mixed Can return all value types.
      *
      * @since 5.0.0
@@ -807,7 +805,7 @@ abstract class BaseType extends HtmlBuilder implements \ArrayAccess, \Countable,
      *
      * @link http://php.net/manual/en/arrayaccess.offsetset.php
      *
-     * @param  mixed  $offset The offset to assign the value to.
+     * @param  mixed  $offset  The offset to assign the value to.
      * @param  mixed  $value  The value to set.
      *
      * @since 5.0.0
@@ -826,7 +824,7 @@ abstract class BaseType extends HtmlBuilder implements \ArrayAccess, \Countable,
      *
      * @link http://php.net/manual/en/arrayaccess.offsetunset.php
      *
-     * @param  mixed  $offset The offset to unset.
+     * @param  mixed  $offset  The offset to unset.
      *
      * @since 5.0.0
      */

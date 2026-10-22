@@ -90,7 +90,7 @@ class Route extends IlluminateRoute
      * Set route WordPress conditions rules.
      *
      *
-     * @return \Themosis\Route\Route
+     * @return Route
      */
     public function setConditions(array $conditions = [])
     {
@@ -178,7 +178,7 @@ class Route extends IlluminateRoute
         }
 
         return $this->wordpressValidators = [
-            new ConditionValidator(),
+            new ConditionValidator,
         ];
     }
 }

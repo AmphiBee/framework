@@ -147,9 +147,8 @@ interface MetaboxInterface
      * Add a field or section of fields to the metabox.
      *
      * @param  FieldTypeInterface|SectionInterface  $field
-     * @param  SectionInterface  $section
      */
-    public function add($field, SectionInterface $section = null): MetaboxInterface;
+    public function add($field, ?SectionInterface $section = null): MetaboxInterface;
 
     /**
      * Return the metabox translations.

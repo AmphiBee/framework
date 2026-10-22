@@ -2,6 +2,7 @@
 
 namespace Themosis\Core\Http\Middleware;
 
+use Illuminate\Container\EntryNotFoundException;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Contracts\Support\Responsable;
@@ -51,7 +52,7 @@ class VerifyCsrfToken
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return mixed
      *
      * @throws TokenMismatchException
@@ -103,7 +104,7 @@ class VerifyCsrfToken
     protected function inExceptArray(Request $request)
     {
         foreach ($this->except as $except) {
-            if ('/' !== $except) {
+            if ($except !== '/') {
                 $except = trim($except, '/');
             }
 
@@ -167,7 +168,7 @@ class VerifyCsrfToken
      *
      * @return Response
      *
-     * @throws \Illuminate\Container\EntryNotFoundException
+     * @throws EntryNotFoundException
      */
     protected function addCookieToResponse(Request $request, Response $response)
     {

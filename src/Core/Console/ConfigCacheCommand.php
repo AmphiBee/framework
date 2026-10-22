@@ -24,7 +24,7 @@ class ConfigCacheCommand extends Command
     protected $description = 'Create a cache file for faster configuration loading';
 
     /**
-     * @var \Illuminate\Filesystem\Filesystem
+     * @var Filesystem
      */
     protected $files;
 

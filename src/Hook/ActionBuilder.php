@@ -7,7 +7,7 @@ class ActionBuilder extends Hook
     /**
      * Run all actions registered with the hook.
      *
-     * @param  string  $hook The action hook name.
+     * @param  string  $hook  The action hook name.
      * @param  mixed  $args
      * @return $this
      */
@@ -25,8 +25,8 @@ class ActionBuilder extends Hook
     /**
      * Call a single action hook.
      *
-     * @param  string  $hook The hook name.
-     * @param  mixed  $args Arguments passed to the hook.
+     * @param  string  $hook  The hook name.
+     * @param  mixed  $args  Arguments passed to the hook.
      */
     protected function doAction($hook, $args)
     {
@@ -36,8 +36,8 @@ class ActionBuilder extends Hook
     /**
      * Call a single action hook with arguments as an array.
      *
-     * @param  string  $hook The hook name.
-     * @param  array  $args Arguments passed as an array to the hook.
+     * @param  string  $hook  The hook name.
+     * @param  array  $args  Arguments passed as an array to the hook.
      */
     protected function doActionRefArray($hook, array $args)
     {

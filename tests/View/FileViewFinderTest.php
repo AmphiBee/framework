@@ -10,7 +10,7 @@ class FileViewFinderTest extends TestCase
 {
     public function test_add_view_location_with_priority()
     {
-        $finder = new FileViewFinder(new Filesystem(), []);
+        $finder = new FileViewFinder(new Filesystem, []);
 
         $finder->addOrderedLocation('first/resources', 1);
         $finder->addLocation('root/resources');

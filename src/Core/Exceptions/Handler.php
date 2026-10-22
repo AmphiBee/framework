@@ -18,6 +18,7 @@ use Illuminate\Database\RecordsNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Exceptions\BackedEnumCaseNotFoundException;
 use Illuminate\Routing\Router;
@@ -33,6 +34,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\ErrorHandler\ErrorRenderer\HtmlErrorRenderer;
 use Symfony\Component\HttpFoundation\Exception\SuspiciousOperationException;
 use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirectResponse;
@@ -50,14 +52,14 @@ class Handler implements ExceptionHandlerContract
     /**
      * The container implementation.
      *
-     * @var \Illuminate\Contracts\Container\Container
+     * @var Container
      */
     protected $container;
 
     /**
      * A list of the exception types that are not reported.
      *
-     * @var array<int, class-string<\Throwable>>
+     * @var array<int, class-string<Throwable>>
      */
     protected $dontReport = [];
 
@@ -71,28 +73,28 @@ class Handler implements ExceptionHandlerContract
     /**
      * A map of exceptions with their corresponding custom log levels.
      *
-     * @var array<class-string<\Throwable>, \Psr\Log\LogLevel::*>
+     * @var array<class-string<Throwable>, LogLevel::*>
      */
     protected $levels = [];
 
     /**
      * The callbacks that should be used during rendering.
      *
-     * @var \Closure[]
+     * @var Closure[]
      */
     protected $renderCallbacks = [];
 
     /**
      * The registered exception mappings.
      *
-     * @var array<string, \Closure>
+     * @var array<string, Closure>
      */
     protected $exceptionMap = [];
 
     /**
      * A list of the internal exception types that should not be reported.
      *
-     * @var array<int, class-string<\Throwable>>
+     * @var array<int, class-string<Throwable>>
      */
     protected $internalDontReport = [
         AuthenticationException::class,
@@ -176,11 +178,11 @@ class Handler implements ExceptionHandlerContract
     /**
      * Register a new exception mapping.
      *
-     * @param  \Closure|string  $from
-     * @param  \Closure|string|null  $to
+     * @param  Closure|string  $from
+     * @param  Closure|string|null  $to
      * @return $this
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function map($from, $to = null)
     {
@@ -216,8 +218,8 @@ class Handler implements ExceptionHandlerContract
     /**
      * Set the log level for the given exception type.
      *
-     * @param  class-string<\Throwable>  $type
-     * @param  \Psr\Log\LogLevel::*  $level
+     * @param  class-string<Throwable>  $type
+     * @param  LogLevel::*  $level
      * @return $this
      */
     public function level($type, $level)
@@ -232,7 +234,7 @@ class Handler implements ExceptionHandlerContract
      *
      * @return void
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function report(Throwable $e)
     {
@@ -355,10 +357,10 @@ class Handler implements ExceptionHandlerContract
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param  Request  $request
+     * @return SymfonyResponse
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function render($request, Throwable $e)
     {
@@ -389,7 +391,7 @@ class Handler implements ExceptionHandlerContract
     /**
      * Prepare exception for rendering.
      *
-     * @return \Throwable
+     * @return Throwable
      */
     protected function prepareException(Throwable $e)
     {
@@ -410,7 +412,7 @@ class Handler implements ExceptionHandlerContract
     /**
      * Map the exception using a registered mapper if possible.
      *
-     * @return \Throwable
+     * @return Throwable
      */
     protected function mapException(Throwable $e)
     {
@@ -431,7 +433,7 @@ class Handler implements ExceptionHandlerContract
     /**
      * Try to render a response from request and exception via render callbacks.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return mixed
      *
      * @throws \ReflectionException
@@ -454,8 +456,8 @@ class Handler implements ExceptionHandlerContract
     /**
      * Render a default exception response if any.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @param  Request  $request
+     * @return Response|RedirectResponse
      */
     protected function renderExceptionResponse($request, Throwable $e)
     {
@@ -467,8 +469,8 @@ class Handler implements ExceptionHandlerContract
     /**
      * Convert an authentication exception into a response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @param  Request  $request
+     * @return Response|RedirectResponse
      */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
@@ -480,8 +482,8 @@ class Handler implements ExceptionHandlerContract
     /**
      * Create a response object from the given validation exception.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param  Request  $request
+     * @return SymfonyResponse
      */
     protected function convertValidationExceptionToResponse(ValidationException $e, $request)
     {
@@ -497,8 +499,8 @@ class Handler implements ExceptionHandlerContract
     /**
      * Convert a validation exception into a response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @param  Request  $request
+     * @return Response|RedirectResponse
      */
     protected function invalid($request, ValidationException $exception)
     {
@@ -510,8 +512,8 @@ class Handler implements ExceptionHandlerContract
     /**
      * Convert a validation exception into a JSON response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request
+     * @return JsonResponse
      */
     protected function invalidJson($request, ValidationException $exception)
     {
@@ -524,7 +526,7 @@ class Handler implements ExceptionHandlerContract
     /**
      * Determine if the exception handler response should be JSON.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return bool
      */
     protected function shouldReturnJson($request, Throwable $e)
@@ -535,8 +537,8 @@ class Handler implements ExceptionHandlerContract
     /**
      * Prepare a response for the given exception.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @param  Request  $request
+     * @return Response|RedirectResponse
      */
     protected function prepareResponse($request, Throwable $e)
     {
@@ -556,7 +558,7 @@ class Handler implements ExceptionHandlerContract
     /**
      * Create a Symfony response for the given exception.
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return SymfonyResponse
      */
     protected function convertExceptionToResponse(Throwable $e)
     {
@@ -609,7 +611,7 @@ class Handler implements ExceptionHandlerContract
     /**
      * Render the given HttpException.
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return SymfonyResponse
      */
     protected function renderHttpException(HttpExceptionInterface $e)
     {
@@ -660,8 +662,8 @@ class Handler implements ExceptionHandlerContract
     /**
      * Map the given exception into an Illuminate response.
      *
-     * @param  \Symfony\Component\HttpFoundation\Response  $response
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @param  SymfonyResponse  $response
+     * @return Response|RedirectResponse
      */
     protected function toIlluminateResponse($response, Throwable $e)
     {
@@ -681,8 +683,8 @@ class Handler implements ExceptionHandlerContract
     /**
      * Prepare a JSON response for the given exception.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request
+     * @return JsonResponse
      */
     protected function prepareJsonResponse($request, Throwable $e)
     {
@@ -715,7 +717,7 @@ class Handler implements ExceptionHandlerContract
     /**
      * Render an exception to the console.
      *
-     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
+     * @param  OutputInterface  $output
      * @return void
      *
      * @internal This method is not meant to be used or overwritten outside the framework.

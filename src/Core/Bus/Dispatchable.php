@@ -3,6 +3,7 @@
 namespace Themosis\Core\Bus;
 
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Fluent;
 
 trait Dispatchable
@@ -28,7 +29,7 @@ trait Dispatchable
     {
         return $boolean
             ? new PendingDispatch(new static(...$arguments))
-            : new Fluent();
+            : new Fluent;
     }
 
     /**
@@ -41,7 +42,7 @@ trait Dispatchable
     {
         return ! $boolean
             ? new PendingDispatch(new static(...$arguments))
-            : new Fluent();
+            : new Fluent;
     }
 
     /**
@@ -51,7 +52,7 @@ trait Dispatchable
      *
      * @return mixed
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public static function dispatchSync()
     {
@@ -63,7 +64,7 @@ trait Dispatchable
      *
      * @return mixed
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public static function dispatchNow()
     {
@@ -75,7 +76,7 @@ trait Dispatchable
      *
      * @return mixed
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     public static function dispatchAfterResponse()
     {

@@ -3,6 +3,7 @@
 namespace Themosis\Core;
 
 use Exception;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 use Themosis\Core\Events\PluginLoaded;
 use Themosis\Core\Support\PluginHeaders;
@@ -10,8 +11,8 @@ use Themosis\Core\Support\WordPressFileHeaders;
 
 class PluginsRepository
 {
-    use WordPressFileHeaders;
     use PluginHeaders;
+    use WordPressFileHeaders;
 
     /**
      * @var Application
@@ -45,7 +46,7 @@ class PluginsRepository
      * Load application must-use plugins.
      *
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      * @throws Exception
      */
     public function load(array $directories)
@@ -130,7 +131,7 @@ class PluginsRepository
      *
      * @return array|null
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     public function loadManifest()
     {

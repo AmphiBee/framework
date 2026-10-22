@@ -41,14 +41,14 @@ class ComposerScripts
      */
     protected static function clearCompiled()
     {
-        /*----------------------------------------------------*/
+        /* ---------------------------------------------------- */
         // Directory separator
-        /*----------------------------------------------------*/
+        /* ---------------------------------------------------- */
         defined('DS') ? DS : define('DS', DIRECTORY_SEPARATOR);
 
-        /*----------------------------------------------------*/
+        /* ---------------------------------------------------- */
         // Application paths
-        /*----------------------------------------------------*/
+        /* ---------------------------------------------------- */
         defined('THEMOSIS_PUBLIC_DIR') ? THEMOSIS_PUBLIC_DIR : define('THEMOSIS_PUBLIC_DIR', 'htdocs');
         defined('THEMOSIS_ROOT') ? THEMOSIS_ROOT : define('THEMOSIS_ROOT', realpath(getcwd()));
         defined('CONTENT_DIR') ? CONTENT_DIR : define('CONTENT_DIR', 'content');

@@ -22,7 +22,7 @@ class ConfigClearCommand extends Command
     protected $description = 'Remove the configuration cache file';
 
     /**
-     * @var \Illuminate\Filesystem\Filesystem
+     * @var Filesystem
      */
     protected $files;
 

@@ -3,6 +3,7 @@
 namespace Themosis\Core\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Routing\RouteCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
@@ -31,7 +32,7 @@ class RouteListCommand extends Command
     protected $router;
 
     /**
-     * @var \Illuminate\Routing\RouteCollection
+     * @var RouteCollection
      */
     protected $routes;
 
@@ -53,7 +54,7 @@ class RouteListCommand extends Command
      */
     public function handle()
     {
-        if (0 == count($this->routes)) {
+        if (count($this->routes) == 0) {
             $this->error('Your application does not have any routes.');
 
             return;

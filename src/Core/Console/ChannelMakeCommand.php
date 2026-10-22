@@ -3,6 +3,7 @@
 namespace Themosis\Core\Console;
 
 use Illuminate\Console\GeneratorCommand;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class ChannelMakeCommand extends GeneratorCommand
 {
@@ -33,7 +34,7 @@ class ChannelMakeCommand extends GeneratorCommand
      * @param  string  $name
      * @return string|string[]
      *
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function buildClass($name)
     {

@@ -7,9 +7,9 @@ use Themosis\Html\HtmlBuilder;
 
 class HtmlBuilderTest extends TestCase
 {
-    public function testHtmlBuilderCanCreateAttributes()
+    public function test_html_builder_can_create_attributes()
     {
-        $html = new HtmlBuilder();
+        $html = new HtmlBuilder;
 
         $this->assertEquals(
             'action="test" method="post"',
@@ -31,9 +31,9 @@ class HtmlBuilderTest extends TestCase
         );
     }
 
-    public function testHtmlBuilderCanConvertCharactersToEntities()
+    public function test_html_builder_can_convert_characters_to_entities()
     {
-        $html = new HtmlBuilder();
+        $html = new HtmlBuilder;
 
         $this->assertEquals(
             'Un &#039;apostrophe&#039; en &lt;strong&gt;gras&lt;/strong&gt;',
@@ -43,9 +43,9 @@ class HtmlBuilderTest extends TestCase
         $this->assertEmpty($html->entities("\x8F!!!"));
     }
 
-    public function testHtmlBuilderCanConvertSpecialCharacetersToHtmlEntities()
+    public function test_html_builder_can_convert_special_characeters_to_html_entities()
     {
-        $html = new HtmlBuilder();
+        $html = new HtmlBuilder;
 
         $this->assertEquals(
             '&lt;a href=&#039;test&#039;&gt;Test&lt;/a&gt;',

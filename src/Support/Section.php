@@ -6,7 +6,7 @@ use Countable;
 use Iterator;
 use Themosis\Support\Contracts\SectionInterface;
 
-class Section implements SectionInterface, Iterator, Countable
+class Section implements Countable, Iterator, SectionInterface
 {
     /**
      * The unique name of the section instance.

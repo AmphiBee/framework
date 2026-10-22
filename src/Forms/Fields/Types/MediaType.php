@@ -11,7 +11,7 @@ use Themosis\Forms\Fields\Contracts\CanHandleUsers;
 use Themosis\Forms\Fields\Exceptions\NotSupportedFieldException;
 use Themosis\Forms\Resources\Transformers\MediaFieldTransformer;
 
-class MediaType extends BaseType implements DataTransformerInterface, CanHandleMetabox, CanHandlePageSettings, CanHandleTerms, CanHandleUsers
+class MediaType extends BaseType implements CanHandleMetabox, CanHandlePageSettings, CanHandleTerms, CanHandleUsers, DataTransformerInterface
 {
     /**
      * Field type.

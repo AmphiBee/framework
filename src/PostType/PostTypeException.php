@@ -2,6 +2,4 @@
 
 namespace Themosis\PostType;
 
-class PostTypeException extends \Exception
-{
-}
+class PostTypeException extends \Exception {}

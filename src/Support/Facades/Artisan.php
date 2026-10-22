@@ -2,6 +2,7 @@
 
 namespace Themosis\Support\Facades;
 
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
 use Illuminate\Support\Facades\Facade;
 
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array all()
  * @method static string output()
  *
- * @see \Illuminate\Contracts\Console\Kernel
+ * @see Kernel
  */
 class Artisan extends Facade
 {

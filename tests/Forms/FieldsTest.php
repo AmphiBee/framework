@@ -20,10 +20,10 @@ class FieldsTest extends TestCase
             return $this->application;
         }
 
-        $this->application = new Application();
+        $this->application = new Application;
 
         $this->application->bind('config', function () {
-            $config = new Repository();
+            $config = new Repository;
             $config->set('app.locale', 'en_US');
 
             return $config;
@@ -41,9 +41,9 @@ class FieldsTest extends TestCase
         return new \Themosis\Field\Factory($this->getApplication(), $viewFactory);
     }
 
-    public function testResourceFactoryReturnFormTransformersInstances()
+    public function test_resource_factory_return_form_transformers_instances()
     {
-        $factory = new Factory();
+        $factory = new Factory;
 
         $this->assertInstanceOf(
             FieldTransformer::class,
@@ -51,9 +51,9 @@ class FieldsTest extends TestCase
         );
     }
 
-    public function testResourceFactoryReturnCustomTransformerWithFQCN()
+    public function test_resource_factory_return_custom_transformer_with_fqcn()
     {
-        $factory = new Factory();
+        $factory = new Factory;
 
         $this->assertInstanceOf(
             CustomFieldTransformer::class,
@@ -61,7 +61,7 @@ class FieldsTest extends TestCase
         );
     }
 
-    public function testFieldsType()
+    public function test_fields_type()
     {
         $fields = $this->getFieldsFactory();
 
@@ -117,13 +117,13 @@ class FieldsTest extends TestCase
         ], $expected);
     }
 
-    public function testFormFieldTextTypeToJSON()
+    public function test_form_field_text_type_to_json()
     {
         $fields = $this->getFieldsFactory();
 
         $name = $fields->text('name')
-            ->setManager(new Manager())
-            ->setResourceTransformerFactory(new Factory());
+            ->setManager(new Manager)
+            ->setResourceTransformerFactory(new Factory);
 
         $expected = $this->expected([
             'attributes' => [
@@ -151,13 +151,13 @@ class FieldsTest extends TestCase
         $this->assertEquals(json_encode($expected), $name->toJson());
     }
 
-    public function testFormFieldTextareaTypeToJSON()
+    public function test_form_field_textarea_type_to_json()
     {
         $fields = $this->getFieldsFactory();
 
         $message = $fields->textarea('message')
-            ->setManager(new Manager())
-            ->setResourceTransformerFactory(new Factory());
+            ->setManager(new Manager)
+            ->setResourceTransformerFactory(new Factory);
 
         $expected = $this->expected([
             'attributes' => [
@@ -185,7 +185,7 @@ class FieldsTest extends TestCase
         $this->assertEquals(json_encode($expected), $message->toJson());
     }
 
-    public function testFormFieldChoiceTypeToJSON()
+    public function test_form_field_choice_type_to_json()
     {
         $fields = $this->getFieldsFactory();
 
@@ -196,8 +196,8 @@ class FieldsTest extends TestCase
                 'blue',
             ],
         ])
-            ->setManager(new Manager())
-            ->setResourceTransformerFactory(new Factory());
+            ->setManager(new Manager)
+            ->setResourceTransformerFactory(new Factory);
 
         $expected = $this->expected([
             'attributes' => [
@@ -239,7 +239,7 @@ class FieldsTest extends TestCase
         $this->assertEquals(json_encode($expected), $colors->toJson());
     }
 
-    public function testFieldsHaveComponentsNames()
+    public function test_fields_have_components_names()
     {
         $fields = $this->getFieldsFactory();
 
@@ -250,7 +250,7 @@ class FieldsTest extends TestCase
         $this->assertEquals('themosis.fields.email', $email->getComponent());
     }
 
-    public function testNumberFieldOptions()
+    public function test_number_field_options()
     {
         $fields = $this->getFieldsFactory();
 
@@ -265,7 +265,7 @@ class FieldsTest extends TestCase
         $this->assertEquals(4, $price->getOption('precision'));
     }
 
-    public function testFieldCanBeShownInRest()
+    public function test_field_can_be_shown_in_rest()
     {
         $fields = $this->getFieldsFactory();
 

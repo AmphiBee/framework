@@ -2,6 +2,7 @@
 
 namespace Themosis\Core\Exceptions;
 
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Whoops\Handler\PrettyPageHandler;
@@ -15,7 +16,7 @@ class WhoopsHandler
      */
     public function forDebug()
     {
-        return tap(new PrettyPageHandler(), function ($handler) {
+        return tap(new PrettyPageHandler, function ($handler) {
             $handler->handleUnconditionally(true);
 
             $this->registerApplicationPaths($handler)
@@ -44,12 +45,12 @@ class WhoopsHandler
      *
      * @return array
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     protected function directoriesExceptVendor()
     {
         return Arr::except(
-            array_flip((new Filesystem())->directories(base_path())),
+            array_flip((new Filesystem)->directories(base_path())),
             [base_path('vendor')],
         );
     }
@@ -57,7 +58,7 @@ class WhoopsHandler
     /**
      * Register the blacklist with the handler.
      *
-     * @param  \Whoops\Handler\PrettyPageHandler  $handler
+     * @param  PrettyPageHandler  $handler
      * @return $this
      */
     protected function registerBlacklist($handler)
@@ -74,7 +75,7 @@ class WhoopsHandler
     /**
      * Register the editor with the handler.
      *
-     * @param  \Whoops\Handler\PrettyPageHandler  $handler
+     * @param  PrettyPageHandler  $handler
      * @return $this
      */
     protected function registerEditor($handler)

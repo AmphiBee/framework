@@ -299,7 +299,7 @@ class Metabox implements MetaboxInterface
         }
 
         $this->filter->add('admin_body_class', function ($classes) {
-            if (false !== strrpos($classes, 'themosis')) {
+            if (strrpos($classes, 'themosis') !== false) {
                 return $classes;
             }
 
@@ -442,9 +442,8 @@ class Metabox implements MetaboxInterface
      * Add a field to the metabox.
      *
      * @param  FieldTypeInterface|SectionInterface  $field
-     * @param  SectionInterface  $section
      */
-    public function add($field, SectionInterface $section = null): MetaboxInterface
+    public function add($field, ?SectionInterface $section = null): MetaboxInterface
     {
         if ($field instanceof SectionInterface) {
             $section = $field;

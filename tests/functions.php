@@ -6,13 +6,9 @@
 |--------------------------------------------------------------------------
 |
 */
-function actionHookCallback()
-{
-}
+function actionHookCallback() {}
 
-function callingForUncharted()
-{
-}
+function callingForUncharted() {}
 
 /*
 |--------------------------------------------------------------------------
@@ -35,13 +31,13 @@ function is_home()
  */
 function is_page($slug = null)
 {
-    if (is_numeric($slug) && 30 === $slug) {
+    if (is_numeric($slug) && $slug === 30) {
         return true;
     } elseif (is_numeric($slug)) {
         return false;
     }
 
-    if (is_string($slug) && 'contact' === $slug) {
+    if (is_string($slug) && $slug === 'contact') {
         return true;
     } elseif (is_string($slug)) {
         return false;
@@ -72,13 +68,13 @@ function is_author()
 
 function is_category($category = null)
 {
-    if (is_numeric($category) && 20 === $category) {
+    if (is_numeric($category) && $category === 20) {
         return true;
     } elseif (is_numeric($category)) {
         return false;
     }
 
-    if (is_string($category) && 'featured' === $category) {
+    if (is_string($category) && $category === 'featured') {
         return true;
     } elseif (is_string($category)) {
         return false;
@@ -114,7 +110,7 @@ function is_paged()
 
 function is_page_template($mixed = null)
 {
-    if (is_string($mixed) && 'about' === $mixed) {
+    if (is_string($mixed) && $mixed === 'about') {
         return true;
     } elseif (is_string($mixed)) {
         return false;
@@ -125,7 +121,7 @@ function is_page_template($mixed = null)
 
 function is_post_type_archive($mixed = null)
 {
-    if (is_string($mixed) && 'events' === $mixed) {
+    if (is_string($mixed) && $mixed === 'events') {
         return true;
     } elseif (is_string($mixed)) {
         return false;
@@ -150,7 +146,7 @@ function is_single()
 
 function is_singular($mixed = null)
 {
-    if (is_string($mixed) && 'books' === $mixed) {
+    if (is_string($mixed) && $mixed === 'books') {
         return true;
     } elseif (is_string($mixed)) {
         return false;
@@ -192,7 +188,7 @@ function is_year()
 
 function is_custom($num)
 {
-    if (42 === $num) {
+    if ($num === 42) {
         return true;
     }
 
@@ -201,7 +197,7 @@ function is_custom($num)
 
 function wp_get_theme()
 {
-    $theme = new stdClass();
+    $theme = new stdClass;
     $theme->stylesheet = 'underscore';
 
     return $theme;

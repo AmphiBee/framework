@@ -39,9 +39,9 @@ class ExceptionHandlerTest extends TestCase
      */
     protected $config;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        $this->container = Container::setInstance(new Container());
+        $this->container = Container::setInstance(new Container);
 
         $this->request = $this->getMockBuilder('stdClass')
             ->setMethods(['expectsJson'])
@@ -74,7 +74,7 @@ class ExceptionHandlerTest extends TestCase
         $this->handler = new Handler($this->container);
     }
 
-    public function testHandlerReportExceptionAsContext()
+    public function test_handler_report_exception_as_context()
     {
         $logger = $this->getMockBuilder(LoggerInterface::class)->getMock();
         $this->container->instance(LoggerInterface::class, $logger);
@@ -93,7 +93,7 @@ class ExceptionHandlerTest extends TestCase
         $this->handler->report($exception);
     }
 
-    public function testReturnsJsonWithStackTraceWhenAjaxRequestAndDebugTrue()
+    public function test_returns_json_with_stack_trace_when_ajax_request_and_debug_true()
     {
         $this->config->expects($this->once())
             ->method('get')
@@ -107,20 +107,20 @@ class ExceptionHandlerTest extends TestCase
         )->getContent();
 
         $this->assertFalse(strpos($response, '<!DOCTYPE html>'));
-        $this->assertTrue(false !== strpos($response, '"message": "Custom error message"'));
-        $this->assertTrue(false !== strpos($response, '"file":'));
-        $this->assertTrue(false !== strpos($response, '"line":'));
-        $this->assertTrue(false !== strpos($response, '"trace":'));
+        $this->assertTrue(strpos($response, '"message": "Custom error message"') !== false);
+        $this->assertTrue(strpos($response, '"file":') !== false);
+        $this->assertTrue(strpos($response, '"line":') !== false);
+        $this->assertTrue(strpos($response, '"trace":') !== false);
     }
 
-    public function testReturnsCustomResponseWhenExceptionImplementResponsable()
+    public function test_returns_custom_response_when_exception_implement_responsable()
     {
-        $response = $this->handler->render($this->request, new CustomException())->getContent();
+        $response = $this->handler->render($this->request, new CustomException)->getContent();
 
         $this->assertSame('{"response":"Custom exception response"}', $response);
     }
 
-    public function testReturnsJsonWithoutStackTraceWhenAjaxRequestAndDebugFalseAndExceptionMessageIsMasked()
+    public function test_returns_json_without_stack_trace_when_ajax_request_and_debug_false_and_exception_message_is_masked()
     {
         $this->config->expects($this->once())
             ->method('get')
@@ -133,7 +133,7 @@ class ExceptionHandlerTest extends TestCase
             new \Exception('This error message should not be visible'),
         )->getContent();
 
-        $this->assertTrue(false !== strpos($response, '"message": "Server Error"'));
+        $this->assertTrue(strpos($response, '"message": "Server Error"') !== false);
 
         $this->assertFalse(strpos($response, '<!DOCTYPE html>'));
         $this->assertFalse(strpos($response, 'This error message should not be visible'));
@@ -142,7 +142,7 @@ class ExceptionHandlerTest extends TestCase
         $this->assertFalse(strpos($response, '"trace":'));
     }
 
-    public function testReturnsJsonWithoutStackTraceWhenAjaxRequestAndDebugFalseAndHttpExceptionIsShown()
+    public function test_returns_json_without_stack_trace_when_ajax_request_and_debug_false_and_http_exception_is_shown()
     {
         $this->config->expects($this->once())
             ->method('get')
@@ -158,7 +158,7 @@ class ExceptionHandlerTest extends TestCase
             ),
         )->getContent();
 
-        $this->assertTrue(false !== strpos($response, '"message": "Custom error message"'));
+        $this->assertTrue(strpos($response, '"message": "Custom error message"') !== false);
         $this->assertFalse(strpos($response, '<!DOCTYPE html>'));
         $this->assertFalse(strpos($response, '"message": "Server Error"'));
         $this->assertFalse(strpos($response, '"file":'));
@@ -166,7 +166,7 @@ class ExceptionHandlerTest extends TestCase
         $this->assertFalse(strpos($response, '"trace":'));
     }
 
-    public function testReturnsJsonWithoutStackTraceWhenAjaxRequestAndDebugFalseAndAccessDeniedHttpExceptionErrorIsShown()
+    public function test_returns_json_without_stack_trace_when_ajax_request_and_debug_false_and_access_denied_http_exception_error_is_shown()
     {
         $this->config->expects($this->once())
             ->method('get')
@@ -179,7 +179,7 @@ class ExceptionHandlerTest extends TestCase
             new AccessDeniedHttpException('Custom error message'),
         )->getContent();
 
-        $this->assertTrue(false !== strpos($response, '"message": "Custom error message"'));
+        $this->assertTrue(strpos($response, '"message": "Custom error message"') !== false);
         $this->assertFalse(strpos($response, '<!DOCTYPE html>'));
         $this->assertFalse(strpos($response, '"message": "Server Error"'));
         $this->assertFalse(strpos($response, '"file":'));
@@ -187,7 +187,7 @@ class ExceptionHandlerTest extends TestCase
         $this->assertFalse(strpos($response, '"trace":'));
     }
 
-    public function testValidateFileMethod()
+    public function test_validate_file_method()
     {
         $argumentExpected = ['input' => 'My input value'];
         $argumentActual = null;

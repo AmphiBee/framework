@@ -2,6 +2,7 @@
 
 namespace Themosis\Route;
 
+use Illuminate\Routing\Route;
 use Illuminate\Routing\RouteCollection as IlluminateRouteCollection;
 
 class RouteCollection extends IlluminateRouteCollection
@@ -9,7 +10,7 @@ class RouteCollection extends IlluminateRouteCollection
     /**
      * Add the given route to the arrays of routes.
      *
-     * @param  \Illuminate\Routing\Route  $route
+     * @param  Route  $route
      */
     protected function addToCollections($route)
     {

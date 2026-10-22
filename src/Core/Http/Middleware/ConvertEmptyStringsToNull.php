@@ -3,6 +3,7 @@
 namespace Themosis\Core\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\Request;
 
 class ConvertEmptyStringsToNull extends TransformsRequest
 {
@@ -24,7 +25,7 @@ class ConvertEmptyStringsToNull extends TransformsRequest
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return mixed
      */
     public function handle($request, Closure $next)

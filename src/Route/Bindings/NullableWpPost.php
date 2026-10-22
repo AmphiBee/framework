@@ -30,8 +30,7 @@ class NullableWpPost
         public string $post_type = 'post',
         public string $post_mime_type = '',
         public int $comment_count = 0,
-    ) {
-    }
+    ) {}
 
     public function toWpPost(): WP_Post
     {

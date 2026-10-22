@@ -7,6 +7,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Adapter\Local;
+use League\Flysystem\FileNotFoundException;
 use League\Flysystem\MountManager;
 
 class VendorPublishCommand extends Command
@@ -195,7 +196,7 @@ class VendorPublishCommand extends Command
      * @param  string  $from
      * @param  string  $to
      *
-     * @throws \League\Flysystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function publishDirectory($from, $to)
     {
@@ -210,9 +211,9 @@ class VendorPublishCommand extends Command
     /**
      * Move all the files in the given MountManager.
      *
-     * @param  \League\Flysystem\MountManager  $manager
+     * @param  MountManager  $manager
      *
-     * @throws \League\Flysystem\FileNotFoundException
+     * @throws FileNotFoundException
      */
     protected function moveManagedFiles($manager)
     {

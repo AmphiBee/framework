@@ -3,6 +3,7 @@
 namespace Themosis\Core\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class StorageLinkCommand extends Command
 {
@@ -51,7 +52,7 @@ class StorageLinkCommand extends Command
      *
      * @return array
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     protected function links()
     {

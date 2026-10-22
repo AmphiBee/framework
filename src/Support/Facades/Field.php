@@ -3,6 +3,7 @@
 namespace Themosis\Support\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use Themosis\Field\Factory;
 use Themosis\Forms\Contracts\FieldTypeInterface;
 
 /**
@@ -23,7 +24,7 @@ use Themosis\Forms\Contracts\FieldTypeInterface;
  * @method static FieldTypeInterface submit(string $name, array $options = [])
  * @method static FieldTypeInterface hidden(string $name, array $options = [])
  *
- * @see \Themosis\Field\Factory
+ * @see Factory
  */
 class Field extends Facade
 {

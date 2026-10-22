@@ -63,7 +63,7 @@ class ConfigurationLoader
         }
         foreach ($files as $key => $path) {
             // Avoid duplicate constant definitions.
-            if ('wordpress' === $key && $this->isWordPressConfigLoaded()) {
+            if ($key === 'wordpress' && $this->isWordPressConfigLoaded()) {
                 continue;
             }
 

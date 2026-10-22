@@ -5,6 +5,7 @@ namespace Themosis\Core\Bus;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Contracts\Cache\Repository as Cache;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 
 class PendingDispatch
@@ -145,7 +146,7 @@ class PendingDispatch
      *
      * @return bool
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     protected function shouldDispatch()
     {

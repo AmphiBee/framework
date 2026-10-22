@@ -11,7 +11,7 @@ class RegisterErrorViewPaths
      */
     public function __invoke()
     {
-        //@todo register plugin and theme view paths...
+        // @todo register plugin and theme view paths...
         View::replaceNamespace('errors', collect(config('view.paths'))->map(function ($path) {
             return "{$path}/errors";
         })->push(__DIR__.'/views')->all());

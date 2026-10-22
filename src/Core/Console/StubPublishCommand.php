@@ -27,7 +27,7 @@ class StubPublishCommand extends Command
     public function handle()
     {
         if (! is_dir($stubsPath = $this->laravel->basePath('stubs'))) {
-            (new Filesystem())->makeDirectory($stubsPath);
+            (new Filesystem)->makeDirectory($stubsPath);
         }
 
         $files = [

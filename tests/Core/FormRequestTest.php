@@ -5,11 +5,14 @@ namespace Themosis\Tests\Core;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Container\Container;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Translation\ArrayLoader;
+use Illuminate\Translation\Translator;
 use Illuminate\Validation\Factory;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Themosis\Core\Http\FormRequest;
 
@@ -20,7 +23,7 @@ class FormRequestTest extends TestCase
      */
     protected $mocks = [];
 
-    public function testValidatedMethodReturnsValidatedData()
+    public function test_validated_method_returns_validated_data()
     {
         $request = $this->createRequest(['name' => 'something', 'with' => 'brush']);
 
@@ -29,7 +32,7 @@ class FormRequestTest extends TestCase
         $this->assertEquals(['name' => 'something'], $request->validated());
     }
 
-    public function testValidateThrowsWhenValidationFails()
+    public function test_validate_throws_when_validation_fails()
     {
         $this->expectException(ValidationException::class);
 
@@ -41,14 +44,14 @@ class FormRequestTest extends TestCase
         $request->validateResolved();
     }
 
-    public function testValidateMethodThrowsWhenAuthorizationFails()
+    public function test_validate_method_throws_when_authorization_fails()
     {
         $this->expectException(AuthorizationException::class);
 
         $this->createRequest([], CoreTestFormRequestForbiddenStub::class)->validateResolved();
     }
 
-    public function testPrepareForValidationRunsBeforeValidation()
+    public function test_prepare_for_validation_runs_before_validation()
     {
         $request = $this->createRequest([], CoreTestFormRequestHooks::class);
         $request->validateResolved();
@@ -58,7 +61,7 @@ class FormRequestTest extends TestCase
 
     protected function createRequest($payload = [], $class = CoreTestFormRequestStub::class)
     {
-        $container = tap(new Container(), function ($container) {
+        $container = tap(new Container, function ($container) {
             $container->instance(
                 Factory::class,
                 $this->createValidationFactory($container),
@@ -74,13 +77,13 @@ class FormRequestTest extends TestCase
     /**
      * Create a validation factory.
      *
-     * @param  \Illuminate\Container\Container  $container
+     * @param  Container  $container
      * @return Factory
      */
     protected function createValidationFactory($container)
     {
-        $translator = new \Illuminate\Translation\Translator(
-            new ArrayLoader(),
+        $translator = new Translator(
+            new ArrayLoader,
             'en_US',
         );
 
@@ -90,8 +93,8 @@ class FormRequestTest extends TestCase
     /**
      * Create a mock redirector.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Routing\Redirector
+     * @param  Request  $request
+     * @return Redirector
      */
     protected function createRedirector($request)
     {
@@ -112,7 +115,7 @@ class FormRequestTest extends TestCase
     /**
      * Create a URL generator.
      *
-     * @return \PHPUnit\Framework\MockObject\MockObject
+     * @return MockObject
      */
     protected function createUrlGenerator()
     {
@@ -125,7 +128,7 @@ class FormRequestTest extends TestCase
     /**
      * Create a redirect response.
      *
-     * @return \PHPUnit\Framework\MockObject\MockObject
+     * @return MockObject
      */
     protected function createRedirectResponse()
     {

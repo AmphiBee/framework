@@ -31,7 +31,7 @@ class ChoiceToValueTransformer implements DataTransformerInterface
     protected function parseNumeric($value)
     {
         if (is_numeric($value)) {
-            if (false !== strrpos($value, '.')) {
+            if (strrpos($value, '.') !== false) {
                 return (float) $value;
             }
 

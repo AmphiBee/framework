@@ -7,9 +7,9 @@ use Themosis\Core\EnvironmentDetector;
 
 class EnvironmentDetectorTest extends TestCase
 {
-    public function testClosureCanBeUsedForEnvironmentDetection()
+    public function test_closure_can_be_used_for_environment_detection()
     {
-        $env = new EnvironmentDetector();
+        $env = new EnvironmentDetector;
 
         $result = $env->detect(function () {
             return 'foo';
@@ -18,9 +18,9 @@ class EnvironmentDetectorTest extends TestCase
         $this->assertEquals('foo', $result);
     }
 
-    public function testConsoleEnvironmentDetection()
+    public function test_console_environment_detection()
     {
-        $env = new EnvironmentDetector();
+        $env = new EnvironmentDetector;
 
         $result = $env->detect(function () {
             return 'goo';

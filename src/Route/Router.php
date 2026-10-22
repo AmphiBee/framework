@@ -3,7 +3,9 @@
 namespace Themosis\Route;
 
 use Illuminate\Container\Container;
+use Illuminate\Container\EntryNotFoundException;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Router as IlluminateRouter;
 use Themosis\Route\Bindings\NullableWpPost;
 
@@ -16,10 +18,10 @@ class Router extends IlluminateRouter
      */
     protected $conditions = [];
 
-    public function __construct(Dispatcher $events, Container $container = null)
+    public function __construct(Dispatcher $events, ?Container $container = null)
     {
         parent::__construct($events, $container);
-        $this->routes = new RouteCollection();
+        $this->routes = new RouteCollection;
     }
 
     /**
@@ -48,10 +50,10 @@ class Router extends IlluminateRouter
     /**
      * Find the route matching a given request.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return \Illuminate\Routing\Route
      *
-     * @throws \Illuminate\Container\EntryNotFoundException
+     * @throws EntryNotFoundException
      */
     protected function findRoute($request)
     {
@@ -89,16 +91,16 @@ class Router extends IlluminateRouter
     /**
      * Add WordPress default parameters if WordPress route.
      *
-     * @param  \Themosis\Route\Route  $route
-     * @return \Themosis\Route\Route
+     * @param  Route  $route
+     * @return Route
      */
     public function addWordPressBindings($route)
     {
         global $post, $wp_query;
 
         foreach (compact('post', 'wp_query') as $key => $value) {
-            if ('post' === $key && null === $value && class_exists('WP_Post')) {
-                $value = (new NullableWpPost())
+            if ($key === 'post' && $value === null && class_exists('WP_Post')) {
+                $value = (new NullableWpPost)
                     ->toWpPost();
             }
 

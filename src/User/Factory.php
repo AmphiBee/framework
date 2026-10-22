@@ -33,7 +33,7 @@ class Factory implements UserFactoryContract
         $user = wp_create_user($username, $password, $email);
 
         if (is_a($user, 'WP_Error')) {
-            if ('existing_user_login' === $user->get_error_code()) {
+            if ($user->get_error_code() === 'existing_user_login') {
                 throw new DuplicateUserException($user->get_error_message());
             }
 

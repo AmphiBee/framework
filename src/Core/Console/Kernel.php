@@ -14,6 +14,13 @@ use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
+use Themosis\Core\Bootstrap\BootProviders;
+use Themosis\Core\Bootstrap\ConfigurationLoader;
+use Themosis\Core\Bootstrap\EnvironmentLoader;
+use Themosis\Core\Bootstrap\RegisterFacades;
+use Themosis\Core\Bootstrap\RegisterProviders;
+use Themosis\Core\Bootstrap\SetRequestForConsole;
+use Themosis\Core\Bus\PendingDispatch;
 use Throwable;
 
 class Kernel implements KernelContract
@@ -31,7 +38,7 @@ class Kernel implements KernelContract
     /**
      * The console application instance.
      *
-     * @var \Illuminate\Console\Application
+     * @var Artisan
      */
     protected $artisan;
 
@@ -39,13 +46,13 @@ class Kernel implements KernelContract
      * @var array
      */
     protected $bootstrappers = [
-        \Themosis\Core\Bootstrap\EnvironmentLoader::class,
-        \Themosis\Core\Bootstrap\ConfigurationLoader::class,
+        EnvironmentLoader::class,
+        ConfigurationLoader::class,
         \Themosis\Core\Bootstrap\ExceptionHandler::class,
-        \Themosis\Core\Bootstrap\RegisterFacades::class,
-        \Themosis\Core\Bootstrap\SetRequestForConsole::class,
-        \Themosis\Core\Bootstrap\RegisterProviders::class,
-        \Themosis\Core\Bootstrap\BootProviders::class,
+        RegisterFacades::class,
+        SetRequestForConsole::class,
+        RegisterProviders::class,
+        BootProviders::class,
     ];
 
     /**
@@ -121,7 +128,7 @@ class Kernel implements KernelContract
     /**
      * Run the console application.
      *
-     * @param  \Symfony\Component\Console\Input\InputInterface  $input
+     * @param  InputInterface  $input
      * @param  null  $output
      * @return int
      */
@@ -131,7 +138,7 @@ class Kernel implements KernelContract
             $this->bootstrap();
 
             return $this->getArtisan()->run($input, $output);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->reportException($e);
             $this->renderException($output, $e);
 
@@ -234,7 +241,7 @@ class Kernel implements KernelContract
 
         $namespace = $this->app->getNamespace();
 
-        foreach ((new Finder())->in($paths)->files() as $command) {
+        foreach ((new Finder)->in($paths)->files() as $command) {
             $command = $namespace.str_replace(
                 ['/', '.php'],
                 ['\\', ''],
@@ -252,7 +259,7 @@ class Kernel implements KernelContract
     /**
      * Return the artisan application instance.
      *
-     * @return \Illuminate\Console\Application
+     * @return Artisan
      */
     protected function getArtisan()
     {
@@ -277,7 +284,7 @@ class Kernel implements KernelContract
     /**
      * Alias. Set the console application instance.
      *
-     * @param  \Illuminate\Console\Application  $console
+     * @param  Artisan  $console
      */
     public function setConsole($console)
     {
@@ -287,7 +294,7 @@ class Kernel implements KernelContract
     /**
      * Set the console application instance.
      *
-     * @param  \Illuminate\Console\Application  $artisan
+     * @param  Artisan  $artisan
      */
     public function setArtisan($artisan)
     {
@@ -312,7 +319,7 @@ class Kernel implements KernelContract
      * Queue the given console command.
      *
      * @param  string  $command
-     * @return \Themosis\Core\Bus\PendingDispatch
+     * @return PendingDispatch
      */
     public function queue($command, array $parameters = [])
     {

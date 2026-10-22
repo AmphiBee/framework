@@ -1,29 +1,45 @@
 <?php
 
+use Illuminate\Broadcasting\PendingBroadcast;
+use Illuminate\Cache\CacheManager;
+use Illuminate\Config\Repository;
 use Illuminate\Container\Container;
+use Illuminate\Container\EntryNotFoundException;
 use Illuminate\Contracts\Auth\Factory as AuthFactory;
+use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Broadcasting\Factory as BroadcastFactory;
 use Illuminate\Contracts\Bus\Dispatcher;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\Cookie\Factory as CookieFactory;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Illuminate\Contracts\View\Factory as ViewFactory;
+use Illuminate\Cookie\CookieJar;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Log\LogManager;
 use Illuminate\Queue\SerializableClosure;
 use Illuminate\Routing\Redirector;
+use Illuminate\Session\SessionManager;
+use Illuminate\Session\Store;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\HtmlString;
+use Illuminate\Validation\Validator;
+use Illuminate\View\Factory;
+use Illuminate\View\View;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Debug\Exception\FatalThrowableError;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Themosis\Core\Application;
 use Themosis\Core\Bus\PendingDispatch;
 use Themosis\Core\Mix;
 
@@ -55,11 +71,11 @@ if (! function_exists('abort_if')) {
      * Throw an HttpException with the given data if the given condition is true.
      *
      * @param  bool  $boolean
-     * @param  \Symfony\Component\HttpFoundation\Response|\Illuminate\Contracts\Support\Responsable|int  $code
+     * @param  Response|Responsable|int  $code
      * @param  string  $message
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws HttpException
+     * @throws NotFoundHttpException
      */
     function abort_if($boolean, $code, $message = '', array $headers = [])
     {
@@ -74,11 +90,11 @@ if (! function_exists('abort_unless')) {
      * Throw an HttpException with the given data unless the given condition is true.
      *
      * @param  bool  $boolean
-     * @param  \Symfony\Component\HttpFoundation\Response|\Illuminate\Contracts\Support\Responsable|int  $code
+     * @param  Response|Responsable|int  $code
      * @param  string  $message
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws HttpException
+     * @throws NotFoundHttpException
      */
     function abort_unless($boolean, $code, $message = '', array $headers = [])
     {
@@ -108,9 +124,9 @@ if (! function_exists('app')) {
      * Get the available container instance.
      *
      * @param  string  $abstract
-     * @return mixed|\Themosis\Core\Application
+     * @return mixed|Application
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     function app($abstract = null, array $parameters = [])
     {
@@ -129,7 +145,7 @@ if (! function_exists('app_path')) {
      * @param  string  $path
      * @return string
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     function app_path($path = '')
     {
@@ -145,7 +161,7 @@ if (! function_exists('asset')) {
      * @param  bool  $secure
      * @return string
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     function asset($path, $secure = null)
     {
@@ -158,9 +174,9 @@ if (! function_exists('auth')) {
      * Get the available auth instance.
      *
      * @param  string|null  $guard
-     * @return \Illuminate\Contracts\Auth\Factory|\Illuminate\Contracts\Auth\Guard
+     * @return AuthFactory|Guard
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     function auth($guard = null)
     {
@@ -179,9 +195,9 @@ if (! function_exists('back')) {
      * @param  int  $status
      * @param  array  $headers
      * @param  mixed  $fallback
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     function back($status = 302, $headers = [], $fallback = false)
     {
@@ -196,7 +212,7 @@ if (! function_exists('base_path')) {
      * @param  string  $path
      * @return string
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     function base_path($path = '')
     {
@@ -223,9 +239,9 @@ if (! function_exists('broadcast')) {
      * Begin broadcasting an event.
      *
      * @param  null  $event
-     * @return \Illuminate\Broadcasting\PendingBroadcast
+     * @return PendingBroadcast
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     function broadcast($event = null)
     {
@@ -240,9 +256,9 @@ if (! function_exists('cache')) {
      * If an array is passed, we'll assume you want to put to the cache.
      *
      * @param dynamic  key|key,default|data,expiration|null
-     * @return mixed|\Illuminate\Cache\CacheManager
+     * @return mixed|CacheManager
      *
-     * @throws \Exception
+     * @throws Exception
      */
     function cache()
     {
@@ -280,9 +296,9 @@ if (! function_exists('config')) {
      *
      * @param  array|string  $key
      * @param  mixed  $default
-     * @return mixed|\Illuminate\Config\Repository
+     * @return mixed|Repository
      *
-     * @throws \Illuminate\Container\EntryNotFoundException
+     * @throws EntryNotFoundException
      */
     function config($key = null, $default = null)
     {
@@ -337,7 +353,7 @@ if (! function_exists('cookie')) {
      * @param  bool  $httpOnly
      * @param  bool  $raw
      * @param  string|null  $sameSite
-     * @return \Illuminate\Cookie\CookieJar|\Symfony\Component\HttpFoundation\Cookie
+     * @return CookieJar|Cookie
      */
     function cookie(
         $name = null,
@@ -583,8 +599,8 @@ if (! function_exists('load_themosis_plugin_textdomain')) {
         /**
          * Filters a plugin's locale.
          *
-         * @param  string  $locale The plugin's current locale.
-         * @param  string  $domain Text domain. Unique identifier for retrieving translated strings.
+         * @param  string  $locale  The plugin's current locale.
+         * @param  string  $domain  Text domain. Unique identifier for retrieving translated strings.
          *
          * @since 3.0.0
          */
@@ -660,9 +676,9 @@ if (! function_exists('mix')) {
      *
      * @param  string  $path
      * @param  string  $manifestDirectory
-     * @return \Illuminate\Support\HtmlString|string
+     * @return HtmlString|string
      *
-     * @throws \Exception
+     * @throws Exception
      */
     function mix($path, $manifestDirectory = '')
     {
@@ -687,8 +703,8 @@ if (! function_exists('now')) {
     /**
      * Create a new Carbon instance for the current time.
      *
-     * @param  \DateTimeZone|string|null  $tz
-     * @return \Illuminate\Support\Carbon
+     * @param  DateTimeZone|string|null  $tz
+     * @return Carbon
      */
     function now($tz = null)
     {
@@ -717,7 +733,7 @@ if (! function_exists('policy')) {
      * @param  object|string  $class
      * @return mixed
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     function policy($class)
     {
@@ -745,7 +761,7 @@ if (! function_exists('public_path')) {
      * @param  string  $path
      * @return string
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     function public_path($path = '')
     {
@@ -777,7 +793,7 @@ if (! function_exists('report')) {
     /**
      * Report an exception.
      *
-     * @param  \Exception  $exception
+     * @param  Exception  $exception
      */
     function report($exception)
     {
@@ -867,9 +883,9 @@ if (! function_exists('response')) {
      *
      * @param  string  $content
      * @param  int  $status
-     * @return \Symfony\Component\HttpFoundation\Response|\Illuminate\Contracts\Routing\ResponseFactory
+     * @return Response|ResponseFactory
      *
-     * @throws \Illuminate\Contracts\Container\BindingResolutionException
+     * @throws BindingResolutionException
      */
     function response($content = '', $status = 200, array $headers = [])
     {
@@ -948,9 +964,9 @@ if (! function_exists('session')) {
      *
      * @param  array|string  $key
      * @param  mixed  $default
-     * @return mixed|\Illuminate\Session\Store|\Illuminate\Session\SessionManager
+     * @return mixed|Store|SessionManager
      *
-     * @throws \Illuminate\Container\EntryNotFoundException
+     * @throws EntryNotFoundException
      */
     function session($key = null, $default = null)
     {
@@ -996,8 +1012,8 @@ if (! function_exists('today')) {
     /**
      * Create a new Carbon instance for the current date.
      *
-     * @param  \DateTimeZone|string|null  $tz
-     * @return \Illuminate\Support\Carbon
+     * @param  DateTimeZone|string|null  $tz
+     * @return Carbon
      */
     function today($tz = null)
     {
@@ -1012,7 +1028,7 @@ if (! function_exists('trans')) {
      * @param  string  $key
      * @param  array  $replace
      * @param  string  $locale
-     * @return \Illuminate\Contracts\Translation\Translator|string|array|null
+     * @return Translator|string|array|null
      */
     function trans($key = null, $replace = [], $locale = null)
     {
@@ -1029,7 +1045,7 @@ if (! function_exists('trans_choice')) {
      * Translates the given message based on a count.
      *
      * @param  string  $key
-     * @param  int|array|\Countable  $number
+     * @param  int|array|Countable  $number
      * @param  string  $locale
      * @return string
      */
@@ -1063,7 +1079,7 @@ if (! function_exists('validator')) {
      * Create a new validator instance.
      *
      *
-     * @return ValidationFactory|\Illuminate\Validation\Validator
+     * @return ValidationFactory|Validator
      */
     function validator(array $data = [], array $rules = [], array $messages = [], array $customAttributes = [])
     {
@@ -1085,7 +1101,7 @@ if (! function_exists('view')) {
      * @param  string  $view
      * @param  array  $data
      * @param  array  $mergeData
-     * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory|\Illuminate\View\Factory
+     * @return View|ViewFactory|Factory
      */
     function view($view = null, $data = [], $mergeData = [])
     {
